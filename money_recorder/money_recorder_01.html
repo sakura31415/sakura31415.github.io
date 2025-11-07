@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Android Studioでお小遣い帳を作ります。Roomを使うチュートリアルになると同時に、私なりのAndroid StudioでのAndroidアプリ開発の進め方を紹介しています。">
+
+        <title>ブログ - sakura</title>
+
+        <link rel="stylesheet" href="../css/style.css">
+    </head>
+    <body>
+        <div class="container">
+            <header id="header">
+                sakura ブログ
+            </header>
+
+            <div class="container_sub">
+                <div id="left_side">
+                    left
+                </div>
+
+                <main id="main">
+                    <div class="padding">
+                        <!-- タイトル -->
+                        <section class="title">
+                            <h1>Android Studioでお小遣い帳を作る #01</h1>
+                            <p>2025/10/30 sakura</p>
+                        </section>
+
+                        <!-- 前書き -->
+                        <section class="">
+                            <h2>前書き</h2>
+                            <p>
+                                大学生活が始まり、お小遣い帳をつけようと思い、またそれを配信したらお小遣い稼ぎにもなるかもとアプリを作ろうとしました。
+                                自分が使っている端末はAndroidなので、Android Studioを使用してお小遣い帳を作り始めました。
+                                プログラミングの知識は昔からUnityでC#を使ってゲームを作ろうとしていたので、多少あり、Android Studioで使うKotlinもAndroid Studio公式チュートリアルも活用しながら学習し、アプリ完成も二か月ほどで終わりました。
+                                Kotlinは少し癖がありましたが、慣れたら結構やりやすかったです。
+                                ただ情報源はその公式チュートリアルぐらいで学習はしづらかった記憶があります。
+                                そこで、同じようなAndroid Studioでアプリ開発がしたいが全然わからないといった方の少しでも助力になればと思い、実際に私が作ったお小遣い帳を作りながらAndroid Studioの使い方を書いていこうと思います。
+                                また、Google Playで配信できなく、お小遣い稼ぎの野望がついえたので、ブログを書いてまたお小遣い稼ぎをしようともくろんでいます。
+                            </p>
+                        </section>
+
+                        <!-- 目次 -->
+                        <section class="">
+                            <h2>目次</h2>
+                            <nav>
+                                <ul>
+                                    <li><a href="#create_new_project">新規プロジェクトの作成</a></li>
+                                    <li><a href="#future">今後について</a></li>
+                                </ul>
+                            </nav>
+                        </section>
+
+                        <section id="create_new_project">
+                            <h2>新規プロジェクトの作成</h2>
+                            <p>
+                                Android Studioのインストールは割愛させていただきます。下の公式サイトからセットアップツールをダウンロードし、なるようにしていくと普通にダウンロードできます。
+                                また、調べてみても情報は出てきますのでそちらでお願いします。
+                            </p>
+                            <a href="https://developer.android.com/studio?hl=ja" target="_blank">Android Studio とアプリツールをダウンロード - https://developer.android.com/studio?hl=ja</a>
+                            <p>
+                                Android Studioを開くと次のような画面になると思います。
+                            </p>
+                            <div class="image">
+                                <img src="./img/01_00.png">
+                            </div>
+                            <p>
+                                ここでEmpty Activityを選択して、Nextを押して進んでください。
+                            </p>
+                            <div class="image">
+                                <img src="./img/01_01.png">
+                                <!-- 画像編集必須 -->
+                            </div>
+                            <p>
+                                そしてプロジェクトの名前を決めます。ここは何でもいいですが、MoneyRecorderとします。<br>
+                                次のPackage Nameは少し大切で、別に何でも大丈夫ですが、このブログをコピペしていくとするなら同じにすることをお勧めします。
+                                はじめは、com.example.~~~となっていると思いますが、~~~の部分はプロジェクト名的な感じなので、今回はmoney_recorderとします。おそらく小文字必須です。
+                                そして、exampleのところは会社名的なもので、もしアプリを配信するならここがexampleのままだと配信できません。好みで自分の好きな名前にしましょう。<br>
+                                その下の二つについては同じように選択して、右下のFinishを押して作成をしてください。
+                            </p>
+                            <div class="image">
+                                <img src="./img/01_02.png">
+                                <!-- 画像編集必須 -->
+                            </div>
+                            <p>
+                                新しい画面が表示されてからすぐのこの画面は読み込み中で、これはしばらくかかります。根気強く待ってください。
+                            </p>
+                            <div class="image">
+                                <img src="./img/01_03.png">
+                                <!-- 画像編集必須 -->
+                            </div>
+                            <p>
+                                読み込みが終わると上のような画面になると思います。右下のプログレスバー的なものがなくなって、左上のProjectがAndroidになっていると思います。<br>
+                                この画面まで来たら新規プロジェクトの作成は完了です。
+                            </p>
+                        </section>
+
+                        <section id="future">
+                            <h2>今後の流れ</h2>
+                            <p>
+                                今後は以下のようなシンプルなお小遣い帳を作っていこうと思います。
+                            </p>
+                            <p>
+                                機能としては最小で、お金を記録する、記録の編集・削除ができる、記録を一覧で表示できて、現在の所持金の合計を出してくれる、です。<br>
+                                このチュートリアルは以下のような流れで進めていこうと思います。
+                                どのチュートリアルでも最後に追加したもののすべてのコピペを張ろうと思うので、学びたいものだけ学べるよう、飛ばせるようにはしたいと思います。
+                            </p>
+                            <ul>
+                                <li>#02 ホーム画面を作る</li>
+                                <li>#03 記録画面を作り、画面遷移ができるようする</li>
+                                <li>#04 Roomで記録を永久保存できるようにする</li>
+                                <li>#05 記録を編集する画面を作る</li>
+                            </ul>
+                            <p>
+                                おおむねこのように進んでいきます。このブログが初めてのブログになりまして、つたない部分もありますが、よろしくお願いします。
+                            </p>
+                        </section>
+                    </div>
+                </main>
+
+                <div id="right_side">
+                    right
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
