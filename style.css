@@ -1,0 +1,50 @@
+.body,html {
+    background-color: #f8f8f8;
+}
+
+.container {
+    display: grid;
+    max-width: 1120px;
+    margin: 0 auto;
+}
+
+.container_sub {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+#header {
+    text-align: center;
+    margin: 20px 0;
+}
+
+#left_side { /*主に目次*/
+    width: 19%;
+    background-color: #ffffff;
+}
+
+#right_side { /*主に他ページのリンク*/
+    width: 20%;
+    background-color: #ffffff;
+}
+
+/* メイン */
+#main {
+    width: 60%;
+    background-color: #ffffff;
+}
+.padding {
+    padding: 5px;
+}
+.image {
+    text-align: center;
+}
+.image img {
+    width: 95%;
+    margin-top: 10px;
+}
+h2 {
+    margin-top: 60px;
+    
+}
