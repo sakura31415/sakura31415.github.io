@@ -26,6 +26,10 @@
     margin-left: 10px;
     padding: 10px 20px;
 }
+.sticky {
+    position: sticky;
+    top: 100px;
+}
 
 .flex {
     display: flex;
