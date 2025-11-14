@@ -1,16 +1,17 @@
 .body,html {
     background-color: #f8f8f8;
+    font-family: "Noto Sans JP", sans-serif;
 }
 
 .container {
     display: grid;
-    max-width: 1120px;
+    max-width: 1600px;
     margin: 0 auto;
 }
 
-.container_sub {
+.content {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     flex-wrap: wrap;
 }
 
@@ -19,32 +20,89 @@
     margin: 20px 0;
 }
 
-#left_side { /*主に目次*/
-    width: 19%;
-    background-color: #ffffff;
-}
-
-#right_side { /*主に他ページのリンク*/
+#side_bar { 
     width: 20%;
     background-color: #ffffff;
+    margin-left: 10px;
+    padding: 10px 20px;
+}
+
+.flex {
+    display: flex;
+    justify-content:space-around;
+    flex-wrap: wrap; /*おりかえす*/
+    align-items: center;
 }
 
 /* メイン */
 #main {
     width: 60%;
     background-color: #ffffff;
-}
-.padding {
-    padding: 5px;
-}
-.image {
-    text-align: center;
-}
-.image img {
-    width: 95%;
-    margin-top: 10px;
+    padding: 20px;
 }
 h2 {
     margin-top: 60px;
-    
+}
+p {
+    line-height: 20px;
+}
+
+.image_center {
+    text-align: center;
+
+}
+.image_center img {
+    width: 95%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.image_center_small {
+    text-align: center;
+}
+.image_center_small img {
+    max-width: 80%;
+    max-height: 30%;
+}
+
+.image_center_handy_flex {
+    text-align: center;
+}
+.image_center_handy_flex img {
+    width: 30%;
+    padding: 1%;
+}
+
+.code {
+    font-family: "Noto Sans Mono", monospace;
+    background-color: rgb(205, 205, 205);
+    border-radius: 3px;
+    padding: 0 3px;
+}
+.code_line_box {
+    font-family: "Noto Sans Mono", monospace;
+    background-color: rgb(28, 28, 28);
+    padding: 10px;
+    border-radius: 10px;
+    margin: 0 12px;
+    position: relative;
+    margin-bottom: 12px;
+    overflow-x: scroll;
+}
+.code_line_box span {
+    color: white;
+}
+.code_line_box pre {
+    color: white;
+    font-family: "Noto Sans Mono", monospace;
+    font-size: 12px;
+    line-height: 2px;
+}
+.code_line_box .title {
+    color: white;
+    background-color: rgb(88, 88, 88);
+    padding: 2px 10px;
+    font-size: 14px;
+    position: absolute;
+    top: 0;
+    left: 0;
 }

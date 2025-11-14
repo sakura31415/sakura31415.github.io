@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="説明">
+
+        <title>Android Studioでお小遣い帳を作る#02 - ホーム画面UIを作る</title>
+
+        <link rel="stylesheet" href="../css/style.css">
+
+        <!-- Google font -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&family=Noto+Sans+Mono:wght@100..900&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <div class="container">
+            <header id="header">
+                sakura ブログ
+            </header>
+
+            <div class="content">
+                <main id="main">
+                    <!-- タイトル -->
+                    <section id="title">
+                        <h1>Android Studioでお小遣い帳を作る #02</h1>
+                        <p>2025/11/10 sakura</p>
+                    </section>
+
+                    <!-- 前書き -->
+                    <section id="">
+                        <h2>前書き</h2>
+                        <div class="image_center_handy_flex">
+                            <img src="./img/01_04.png">
+                            <img src="./img/01_05.png">
+                            <img src="./img/01_06.png">
+                        </div>
+                        <p>
+                            今回の完成イメージです。Scaffoldでヘッダー、フッター、追加ボタンを追加するのとともに、データのクラス、それを履歴として表示するところまでやります。
+                            ホーム画面が何もないのは、アプリを立ち上げてすぐにお金の画面になるのは少しデリカシーがないかなとこうしてあります。
+                            自分で好きにカスタマイズをするのもありです。
+                        </p>
+                    </section>
+
+                    <!-- 目次 -->
+                    <section id="">
+                        <h2>目次</h2>
+                        <nav>
+                            <ul>
+                                <li><a href="#theme">Theme</a></li>
+                                <li><a href="#scaffold">Scaffold</a></li>
+                                <li><a href="#data_class">データ型の作成</a></li>
+                                <li><a href="#history">履歴画面を作る</a></li>
+                                <li><a href="#balance">残高画面を作る</a></li>
+                                <li><a href="#conclusion">まとめ</a></li>
+                            </ul>
+                        </nav>
+                    </section>
+
+                    <section id="theme">
+                        <h2>Theme</h2>
+                        <p>
+                            まず、Themeを書いていきましょう。Android Studioを立ち上げて少々待つとこのような画面になると思います。
+                        </p>
+                        <div class="image_center">
+                            <img src="./img/02_00.png">
+                        </div>
+                        <p>
+                            右上のほうの赤丸が打ってある、三本線と四角のアイコン(Split)を押してください。
+                        </p>
+                        <div class="image_center">
+                            <img src="./img/02_01.png">
+                        </div>
+                        <p>
+                            するとこのように、画面が出てきます。<br>
+                            これは<span class="code">MainActivity.kt</span>内にある<span class="code">@Preview</span>アノテーションがついたコンポーザブル関数がプレビューされたものが表示されます。<br>
+                            Kotlinには少し慣れが必要だと思うので、とりあえずプレビューしたいものにはつけるものなんだと、覚えておいてください。<br>
+                        </p>
+                        <p>
+                            次に<span class="code">ui>theme</span>にある、<span class="code">Color.kt</span> <span class="code">Theme.kt</span> <span class="code">Type.kt</span>を改変していきましょう。主にコピペです。<br>
+                            まず下の、リンクの Material Theme Builder に飛んでください。<br>
+                            ダウンロードが面倒な方は、下にコピペを張るのでそれを使ってください。
+                        </p>
+                        <a href="https://material-foundation.github.io/material-theme-builder/" target="_blank">Material Theme Builder - https://material-foundation.github.io/material-theme-builder/</a>
+                        <div class="image_center">
+                            <img src="./img/02_02.png">
+                        </div>
+                        <p>
+                            このサイトはアンドロイドベースの UI のベース的なのをコピペさせてくれるサイトです。好みの画像を選択して、好みの色使いを選んで右下の Pick your fonts → で進んでください。<br>
+                            次はフォントの選択画面ですが、今回は何も選択しません。右下の Export theme → を選択して、次に進みましょう。<br>
+                            また次の色の薄い右下の Export を押すと次の画面になると思います。
+                        </p>
+                        <div class="image_center">
+                            <img src="./img/02_03.png">
+                        </div>
+                        <p>そして、Jetpack Compose (Theme.kt) を選択して、ダウンロードされた zip ファイルを展開してください。</p>
+                        <div class="image_center_small">
+                            <img src="./img/02_04.png">
+                        </div>
+                        <p>
+                            これをメモ帳などで開いて、Android Studio のほうに書き換えてください。<br>
+                            ここで注意点なのですが、一番上の<span class="code">package_com.sakura.money_recorder.ui.theme</span>を変えるとエラーが出るので、それ以外をコピペしましょう。
+                        </p>
+                        <div class="image_center_small">
+                            <img src="./img/02_05.png">
+                        </div>
+                        <p>
+                            また、もう一つの注意点で、コピペすると<span class="code">Theme.kt</span>の<span class="code">fun MoneyRecorderTheme</span>が<span class="code">fun AppTheme</span>に変えられてしまうので戻しましょう。
+                        </p>
+                        <div class="image_center">
+                            <img src="./img/02_06.png">
+                        </div>
+                        <p>
+                            また、<span class="code">Color.kt</span>において HighContrast や MediumContrast などの使わない色まで書いてあるのでいらないと思うのであれば消してください。残すのは一番上のと、ダークモードのやつです。<br>
+                            下にコピペ用のコードを張ります。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">Color.kt</span><br>
+                            <pre>package com.sakura.money_recorder.ui.theme //ここを自分仕様に</pre>
+                            <pre>import androidx.compose.ui.graphics.Color</pre>
+                            <pre><br></pre>
+                            <pre>val primaryLight = Color(0xFF415F91)</pre>
+                            <pre>val onPrimaryLight = Color(0xFFFFFFFF)</pre>
+                            <pre>val primaryContainerLight = Color(0xFFD6E3FF)</pre>
+                            <pre>val onPrimaryContainerLight = Color(0xFF284777)</pre>
+                            <pre>val secondaryLight = Color(0xFF565F71)</pre>
+                            <pre>val onSecondaryLight = Color(0xFFFFFFFF)</pre>
+                            <pre>val secondaryContainerLight = Color(0xFFDAE2F9)</pre>
+                            <pre>val onSecondaryContainerLight = Color(0xFF3E4759)</pre>
+                            <pre>val tertiaryLight = Color(0xFF705575)</pre>
+                            <pre>val onTertiaryLight = Color(0xFFFFFFFF)</pre>
+                            <pre>val tertiaryContainerLight = Color(0xFFFAD8FD)</pre>
+                            <pre>val onTertiaryContainerLight = Color(0xFF573E5C)</pre>
+                            <pre>val errorLight = Color(0xFFBA1A1A)</pre>
+                            <pre>val onErrorLight = Color(0xFFFFFFFF)</pre>
+                            <pre>val errorContainerLight = Color(0xFFFFDAD6)</pre>
+                            <pre>val onErrorContainerLight = Color(0xFF93000A)</pre>
+                            <pre>val backgroundLight = Color(0xFFF9F9FF)</pre>
+                            <pre>val onBackgroundLight = Color(0xFF191C20)</pre>
+                            <pre>val surfaceLight = Color(0xFFF9F9FF)</pre>
+                            <pre>val onSurfaceLight = Color(0xFF191C20)</pre>
+                            <pre>val surfaceVariantLight = Color(0xFFE0E2EC)</pre>
+                            <pre>val onSurfaceVariantLight = Color(0xFF44474E)</pre>
+                            <pre>val outlineLight = Color(0xFF74777F)</pre>
+                            <pre>val outlineVariantLight = Color(0xFFC4C6D0)</pre>
+                            <pre>val scrimLight = Color(0xFF000000)</pre>
+                            <pre>val inverseSurfaceLight = Color(0xFF2E3036)</pre>
+                            <pre>val inverseOnSurfaceLight = Color(0xFFF0F0F7)</pre>
+                            <pre>val inversePrimaryLight = Color(0xFFAAC7FF)</pre>
+                            <pre>val surfaceDimLight = Color(0xFFD9D9E0)</pre>
+                            <pre>val surfaceBrightLight = Color(0xFFF9F9FF)</pre>
+                            <pre>val surfaceContainerLowestLight = Color(0xFFFFFFFF)</pre>
+                            <pre>val surfaceContainerLowLight = Color(0xFFF3F3FA)</pre>
+                            <pre>val surfaceContainerLight = Color(0xFFEDEDF4)</pre>
+                            <pre>val surfaceContainerHighLight = Color(0xFFE7E8EE)</pre>
+                            <pre>val surfaceContainerHighestLight = Color(0xFFE2E2E9)</pre>
+                            <pre><br></pre>
+                            <pre>val primaryDark = Color(0xFFAAC7FF)</pre>
+                            <pre>val onPrimaryDark = Color(0xFF0A305F)</pre>
+                            <pre>val primaryContainerDark = Color(0xFF284777)</pre>
+                            <pre>val onPrimaryContainerDark = Color(0xFFD6E3FF)</pre>
+                            <pre>val secondaryDark = Color(0xFFBEC6DC)</pre>
+                            <pre>val onSecondaryDark = Color(0xFF283141)</pre>
+                            <pre>val secondaryContainerDark = Color(0xFF3E4759)</pre>
+                            <pre>val onSecondaryContainerDark = Color(0xFFDAE2F9)</pre>
+                            <pre>val tertiaryDark = Color(0xFFDDBCE0)</pre>
+                            <pre>val onTertiaryDark = Color(0xFF3F2844)</pre>
+                            <pre>val tertiaryContainerDark = Color(0xFF573E5C)</pre>
+                            <pre>val onTertiaryContainerDark = Color(0xFFFAD8FD)</pre>
+                            <pre>val errorDark = Color(0xFFFFB4AB)</pre>
+                            <pre>val onErrorDark = Color(0xFF690005)</pre>
+                            <pre>val errorContainerDark = Color(0xFF93000A)</pre>
+                            <pre>val onErrorContainerDark = Color(0xFFFFDAD6)</pre>
+                            <pre>val backgroundDark = Color(0xFF111318)</pre>
+                            <pre>val onBackgroundDark = Color(0xFFE2E2E9)</pre>
+                            <pre>val surfaceDark = Color(0xFF111318)</pre>
+                            <pre>val onSurfaceDark = Color(0xFFE2E2E9)</pre>
+                            <pre>val surfaceVariantDark = Color(0xFF44474E)</pre>
+                            <pre>val onSurfaceVariantDark = Color(0xFFC4C6D0)</pre>
+                            <pre>val outlineDark = Color(0xFF8E9099)</pre>
+                            <pre>val outlineVariantDark = Color(0xFF44474E)</pre>
+                            <pre>val scrimDark = Color(0xFF000000)</pre>
+                            <pre>val inverseSurfaceDark = Color(0xFFE2E2E9)</pre>
+                            <pre>val inverseOnSurfaceDark = Color(0xFF2E3036)</pre>
+                            <pre>val inversePrimaryDark = Color(0xFF415F91)</pre>
+                            <pre>val surfaceDimDark = Color(0xFF111318)</pre>
+                            <pre>val surfaceBrightDark = Color(0xFF37393E)</pre>
+                            <pre>val surfaceContainerLowestDark = Color(0xFF0C0E13)</pre>
+                            <pre>val surfaceContainerLowDark = Color(0xFF191C20)</pre>
+                            <pre>val surfaceContainerDark = Color(0xFF1D2024)</pre>
+                            <pre>val surfaceContainerHighDark = Color(0xFF282A2F)</pre>
+                            <pre>val surfaceContainerHighestDark = Color(0xFF33353A)</pre>
+                        </div>
+                        <p>
+                            主に色データを格納するファイルです。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">Theme.kt</span><br>
+                            <pre>package com.sakura.money_recorder.ui.theme</pre>
+                            <pre>import android.app.Activity</pre>
+                            <pre>import android.os.Build</pre>
+                            <pre>import androidx.compose.foundation.isSystemInDarkTheme</pre>
+                            <pre>import androidx.compose.material3.MaterialTheme</pre>
+                            <pre>import androidx.compose.material3.lightColorScheme</pre>
+                            <pre>import androidx.compose.material3.darkColorScheme</pre>
+                            <pre>import androidx.compose.material3.dynamicDarkColorScheme</pre>
+                            <pre>import androidx.compose.material3.dynamicLightColorScheme</pre>
+                            <pre>import androidx.compose.material3.Typography</pre>
+                            <pre>import androidx.compose.runtime.Composable</pre>
+                            <pre>import androidx.compose.runtime.Immutable</pre>
+                            <pre>import androidx.compose.ui.graphics.Color</pre>
+                            <pre>import androidx.compose.ui.graphics.toArgb</pre>
+                            <pre>import androidx.compose.ui.platform.LocalContext</pre>
+                            <pre><br></pre>
+                            <pre>private val lightScheme = lightColorScheme(</pre>
+                            <pre>    primary = primaryLight,</pre>
+                            <pre>    onPrimary = onPrimaryLight,</pre>
+                            <pre>    primaryContainer = primaryContainerLight,</pre>
+                            <pre>    onPrimaryContainer = onPrimaryContainerLight,</pre>
+                            <pre>    secondary = secondaryLight,</pre>
+                            <pre>    onSecondary = onSecondaryLight,</pre>
+                            <pre>    secondaryContainer = secondaryContainerLight,</pre>
+                            <pre>    onSecondaryContainer = onSecondaryContainerLight,</pre>
+                            <pre>    tertiary = tertiaryLight,</pre>
+                            <pre>    onTertiary = onTertiaryLight,</pre>
+                            <pre>    tertiaryContainer = tertiaryContainerLight,</pre>
+                            <pre>    onTertiaryContainer = onTertiaryContainerLight,</pre>
+                            <pre>    error = errorLight,</pre>
+                            <pre>    onError = onErrorLight,</pre>
+                            <pre>    errorContainer = errorContainerLight,</pre>
+                            <pre>    onErrorContainer = onErrorContainerLight,</pre>
+                            <pre>    background = backgroundLight,</pre>
+                            <pre>    onBackground = onBackgroundLight,</pre>
+                            <pre>    surface = surfaceLight,</pre>
+                            <pre>    onSurface = onSurfaceLight,</pre>
+                            <pre>    surfaceVariant = surfaceVariantLight,</pre>
+                            <pre>    onSurfaceVariant = onSurfaceVariantLight,</pre>
+                            <pre>    outline = outlineLight,</pre>
+                            <pre>    outlineVariant = outlineVariantLight,</pre>
+                            <pre>    scrim = scrimLight,</pre>
+                            <pre>    inverseSurface = inverseSurfaceLight,</pre>
+                            <pre>    inverseOnSurface = inverseOnSurfaceLight,</pre>
+                            <pre>    inversePrimary = inversePrimaryLight,</pre>
+                            <pre>    surfaceDim = surfaceDimLight,</pre>
+                            <pre>    surfaceBright = surfaceBrightLight,</pre>
+                            <pre>    surfaceContainerLowest = surfaceContainerLowestLight,</pre>
+                            <pre>    surfaceContainerLow = surfaceContainerLowLight,</pre>
+                            <pre>    surfaceContainer = surfaceContainerLight,</pre>
+                            <pre>    surfaceContainerHigh = surfaceContainerHighLight,</pre>
+                            <pre>    surfaceContainerHighest = surfaceContainerHighestLight,</pre>
+                            <pre>)</pre>
+                            <pre><br></pre>
+                            <pre>private val darkScheme = darkColorScheme(</pre>
+                            <pre>    primary = primaryDark,</pre>
+                            <pre>    onPrimary = onPrimaryDark,</pre>
+                            <pre>    primaryContainer = primaryContainerDark,</pre>
+                            <pre>    onPrimaryContainer = onPrimaryContainerDark,</pre>
+                            <pre>    secondary = secondaryDark,</pre>
+                            <pre>    onSecondary = onSecondaryDark,</pre>
+                            <pre>    secondaryContainer = secondaryContainerDark,</pre>
+                            <pre>    onSecondaryContainer = onSecondaryContainerDark,</pre>
+                            <pre>    tertiary = tertiaryDark,</pre>
+                            <pre>    onTertiary = onTertiaryDark,</pre>
+                            <pre>    tertiaryContainer = tertiaryContainerDark,</pre>
+                            <pre>    onTertiaryContainer = onTertiaryContainerDark,</pre>
+                            <pre>    error = errorDark,</pre>
+                            <pre>    onError = onErrorDark,</pre>
+                            <pre>    errorContainer = errorContainerDark,</pre>
+                            <pre>    onErrorContainer = onErrorContainerDark,</pre>
+                            <pre>    background = backgroundDark,</pre>
+                            <pre>    onBackground = onBackgroundDark,</pre>
+                            <pre>    surface = surfaceDark,</pre>
+                            <pre>    onSurface = onSurfaceDark,</pre>
+                            <pre>    surfaceVariant = surfaceVariantDark,</pre>
+                            <pre>    onSurfaceVariant = onSurfaceVariantDark,</pre>
+                            <pre>    outline = outlineDark,</pre>
+                            <pre>    outlineVariant = outlineVariantDark,</pre>
+                            <pre>    scrim = scrimDark,</pre>
+                            <pre>    inverseSurface = inverseSurfaceDark,</pre>
+                            <pre>    inverseOnSurface = inverseOnSurfaceDark,</pre>
+                            <pre>    inversePrimary = inversePrimaryDark,</pre>
+                            <pre>    surfaceDim = surfaceDimDark,</pre>
+                            <pre>    surfaceBright = surfaceBrightDark,</pre>
+                            <pre>    surfaceContainerLowest = surfaceContainerLowestDark,</pre>
+                            <pre>    surfaceContainerLow = surfaceContainerLowDark,</pre>
+                            <pre>    surfaceContainer = surfaceContainerDark,</pre>
+                            <pre>    surfaceContainerHigh = surfaceContainerHighDark,</pre>
+                            <pre>    surfaceContainerHighest = surfaceContainerHighestDark,</pre>
+                            <pre>)</pre>
+                            <pre><br></pre>
+                            <pre>@Immutable</pre>
+                            <pre>data class ColorFamily(</pre>
+                            <pre>    val color: Color,</pre>
+                            <pre>    val onColor: Color,</pre>
+                            <pre>    val colorContainer: Color,</pre>
+                            <pre>    val onColorContainer: Color</pre>
+                            <pre>)</pre>
+                            <pre><br></pre>
+                            <pre>val unspecified_scheme = ColorFamily(</pre>
+                            <pre>    Color.Unspecified, Color.Unspecified, Color.Unspecified, Color.Unspecified</pre>
+                            <pre>)</pre>
+                            <pre><br></pre>
+                            <pre>@Composable</pre>
+                            <pre>fun MoneyRecorderTheme(</pre>
+                            <pre>    darkTheme: Boolean = isSystemInDarkTheme(),</pre>
+                            <pre>    // Dynamic color is available on Android 12+</pre>
+                            <pre>    dynamicColor: Boolean = true,</pre>
+                            <pre>    content: @Composable() () -> Unit</pre>
+                            <pre>) {</pre>
+                            <pre>    val colorScheme = when {</pre>
+                            <pre>        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {</pre>
+                            <pre>            val context = LocalContext.current</pre>
+                            <pre>            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)</pre>
+                            <pre>        }</pre>
+                            <pre><br></pre>
+                            <pre>        darkTheme -> darkScheme</pre>
+                            <pre>        else -> lightScheme</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre>    MaterialTheme(</pre>
+                            <pre>        colorScheme = colorScheme,</pre>
+                            <pre>        typography = AppTypography,</pre>
+                            <pre>        content = content</pre>
+                            <pre>    )</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                        </div>
+                        <p>
+                            色データを使える形にするものです。ダークテーマ対応などもここにあります。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">Color.kt</span><br>
+                            <pre>package com.sakura.money_recorder.ui.theme</pre>
+                            <pre><br></pre>
+                            <pre>import androidx.compose.material3.Typography</pre>
+                            <pre>import androidx.compose.ui.text.TextStyle</pre>
+                            <pre>import androidx.compose.ui.text.font.FontFamily</pre>
+                            <pre>import androidx.compose.ui.text.font.FontWeight</pre>
+                            <pre>import androidx.compose.ui.unit.sp</pre>
+                            <pre><br></pre>
+                            <pre>val AppTypography = Typography()</pre>
+                        </div>
+                        <p>
+                            Typographyというクラスを入れるファイルです。フォントや文字サイズ、色を変更するときはここに初期値から変更するコードを書いて変更します。
+                        </p>
+                        <p>
+                            ここでとあるプレビューのためのファイルを作成することをお勧めします。<br>
+                            まず <span class="code">ui.theme</span> のファイルの上で右クリックして new > Kotlin Class/File を選択してください。
+                        </p>
+                        <div class="image_center">
+                            <img src="./img/02_07.png">
+                        </div>
+                        <div class="image_center_small">
+                            <img src="./img/02_08.png">
+                        </div>
+                        <p>
+                            そして <span class="code">_PreviewMaterialTheme</span> を名前にし、File を選択して作成してください。<br>
+                            そして以下のコードをコピペしてください。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">_PreviewMaterialTheme.kt</span><br>
+                            <pre>package com.sakura.money_recorder.ui.theme</pre>
+                            <pre><br></pre>
+                            <pre>import androidx.compose.foundation.background</pre>
+                            <pre>import androidx.compose.foundation.gestures.Orientation</pre>
+                            <pre>import androidx.compose.foundation.gestures.scrollable</pre>
+                            <pre>import androidx.compose.foundation.layout.Column</pre>
+                            <pre>import androidx.compose.foundation.layout.Row</pre>
+                            <pre>import androidx.compose.foundation.layout.padding</pre>
+                            <pre>import androidx.compose.foundation.rememberScrollState</pre>
+                            <pre>import androidx.compose.material3.MaterialTheme</pre>
+                            <pre>import androidx.compose.material3.Text</pre>
+                            <pre>import androidx.compose.runtime.Composable</pre>
+                            <pre>import androidx.compose.ui.Alignment</pre>
+                            <pre>import androidx.compose.ui.Modifier</pre>
+                            <pre>import androidx.compose.ui.graphics.Color</pre>
+                            <pre>import androidx.compose.ui.tooling.preview.Preview</pre>
+                            <pre>import androidx.compose.ui.unit.dp</pre>
+                            <pre><br></pre>
+                            <pre>@Preview(showBackground = true)</pre>
+                            <pre>@Composable</pre>
+                            <pre>private fun MaterialThemePreview() {</pre>
+                            <pre>    MoneyRecorderTheme {</pre>
+                            <pre>        Column(</pre>
+                            <pre>            modifier = Modifier.scrollable(</pre>
+                            <pre>                rememberScrollState(),</pre>
+                            <pre>                orientation = Orientation.Vertical</pre>
+                            <pre>            )</pre>
+                            <pre>        ) {</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "displaySmall",</pre>
+                            <pre>                style = MaterialTheme.typography.displaySmall</pre>
+                            <pre>            )</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "displayMedium",</pre>
+                            <pre>                style = MaterialTheme.typography.displayMedium</pre>
+                            <pre>            )</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "displayLarge",</pre>
+                            <pre>                style = MaterialTheme.typography.displayLarge</pre>
+                            <pre>            )</pre>
+                            <pre><br></pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "headlineSmall",</pre>
+                            <pre>                style = MaterialTheme.typography.headlineSmall</pre>
+                            <pre>            )</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "headlineMedium",</pre>
+                            <pre>                style = MaterialTheme.typography.headlineMedium</pre>
+                            <pre>            )</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "headlineLarge",</pre>
+                            <pre>                style = MaterialTheme.typography.headlineLarge</pre>
+                            <pre>            )</pre>
+                            <pre><br></pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "titleSmall",</pre>
+                            <pre>                style = MaterialTheme.typography.titleSmall</pre>
+                            <pre>            )</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "titleMedium",</pre>
+                            <pre>                style = MaterialTheme.typography.titleMedium</pre>
+                            <pre>            )</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "titleLarge",</pre>
+                            <pre>                style = MaterialTheme.typography.titleLarge</pre>
+                            <pre>            )</pre>
+                            <pre><br></pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "bodySmall",</pre>
+                            <pre>                style = MaterialTheme.typography.bodySmall</pre>
+                            <pre>            )</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "bodyMedium",</pre>
+                            <pre>                style = MaterialTheme.typography.bodyMedium</pre>
+                            <pre>            )</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "bodyLarge",</pre>
+                            <pre>                style = MaterialTheme.typography.bodyLarge</pre>
+                            <pre>            )</pre>
+                            <pre><br></pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "labelSmall",</pre>
+                            <pre>                style = MaterialTheme.typography.labelSmall</pre>
+                            <pre>            )</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "labelMedium",</pre>
+                            <pre>                style = MaterialTheme.typography.labelMedium</pre>
+                            <pre>            )</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "labelLarge",</pre>
+                            <pre>                style = MaterialTheme.typography.labelLarge</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>@Preview(showBackground = true)</pre>
+                            <pre>@Composable</pre>
+                            <pre>private fun ColorPreview() {</pre>
+                            <pre>    MoneyRecorderTheme {</pre>
+                            <pre>        // --- 色のプレビュー ---</pre>
+                            <pre>        Column {</pre>
+                            <pre>            Row {</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "primary",</pre>
+                            <pre>                    MaterialTheme.colorScheme.primary,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onPrimary</pre>
+                            <pre>                )</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "secondary",</pre>
+                            <pre>                    MaterialTheme.colorScheme.secondary,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onSecondary</pre>
+                            <pre>                )</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "tertiary",</pre>
+                            <pre>                    MaterialTheme.colorScheme.tertiary,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onTertiary</pre>
+                            <pre>                )</pre>
+                            <pre>            }</pre>
+                            <pre>            Row {</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "primaryC",</pre>
+                            <pre>                    MaterialTheme.colorScheme.primaryContainer,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onPrimaryContainer</pre>
+                            <pre>                )</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "secondaryC",</pre>
+                            <pre>                    MaterialTheme.colorScheme.secondaryContainer,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onSecondaryContainer</pre>
+                            <pre>                )</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "tertiaryC",</pre>
+                            <pre>                    MaterialTheme.colorScheme.tertiaryContainer,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onTertiaryContainer</pre>
+                            <pre>                )</pre>
+                            <pre>            }</pre>
+                            <pre><br></pre>
+                            <pre>            Row {</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "error",</pre>
+                            <pre>                    MaterialTheme.colorScheme.error,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onError</pre>
+                            <pre>                )</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "errorC",</pre>
+                            <pre>                    MaterialTheme.colorScheme.errorContainer,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onErrorContainer</pre>
+                            <pre>                )</pre>
+                            <pre>            }</pre>
+                            <pre><br></pre>
+                            <pre>            Row {</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "surface",</pre>
+                            <pre>                    MaterialTheme.colorScheme.surface,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onSurface</pre>
+                            <pre>                )</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "surfaceVariant",</pre>
+                            <pre>                    MaterialTheme.colorScheme.surfaceVariant,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onSurfaceVariant</pre>
+                            <pre>                )</pre>
+                            <pre>            }</pre>
+                            <pre><br></pre>
+                            <pre>            Row {</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "lowest",</pre>
+                            <pre>                    MaterialTheme.colorScheme.surfaceContainerLowest,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onSurface</pre>
+                            <pre>                )</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "low",</pre>
+                            <pre>                    MaterialTheme.colorScheme.surfaceContainerLow,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onSurface</pre>
+                            <pre>                )</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "surfaceC",</pre>
+                            <pre>                    MaterialTheme.colorScheme.surfaceContainer,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onSurface</pre>
+                            <pre>                )</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "high",</pre>
+                            <pre>                    MaterialTheme.colorScheme.surfaceContainerHigh,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onSurface</pre>
+                            <pre>                )</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "highest",</pre>
+                            <pre>                    MaterialTheme.colorScheme.surfaceContainerHighest,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onSurface</pre>
+                            <pre>                )</pre>
+                            <pre>            }</pre>
+                            <pre><br></pre>
+                            <pre>            Row {</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "Inverse",</pre>
+                            <pre>                    MaterialTheme.colorScheme.inverseSurface,</pre>
+                            <pre>                    MaterialTheme.colorScheme.inverseOnSurface</pre>
+                            <pre>                )</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "InverseP",</pre>
+                            <pre>                    MaterialTheme.colorScheme.inverseSurface,</pre>
+                            <pre>                    MaterialTheme.colorScheme.inversePrimary</pre>
+                            <pre>                )</pre>
+                            <pre>            }</pre>
+                            <pre><br></pre>
+                            <pre>            Row {</pre>
+                            <pre><br></pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "outline",</pre>
+                            <pre>                    MaterialTheme.colorScheme.surface,</pre>
+                            <pre>                    MaterialTheme.colorScheme.outline</pre>
+                            <pre>                )</pre>
+                            <pre><br></pre>
+                            <pre>                //HorizontalDividerなど</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "outline",</pre>
+                            <pre>                    MaterialTheme.colorScheme.surface,</pre>
+                            <pre>                    MaterialTheme.colorScheme.outlineVariant</pre>
+                            <pre>                )</pre>
+                            <pre>            }</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>@Composable</pre>
+                            <pre>private fun ColorPreviewWithOn(text: String, color: Color, onColor: Color) {</pre>
+                            <pre>    Column(</pre>
+                            <pre>        modifier = Modifier</pre>
+                            <pre>            .background(color)</pre>
+                            <pre>            .padding(8.dp),</pre>
+                            <pre>        horizontalAlignment = Alignment.CenterHorizontally,</pre>
+                            <pre>    ) {</pre>
+                            <pre>        Text(</pre>
+                            <pre>            text = text,</pre>
+                            <pre>            color = onColor</pre>
+                            <pre>        )</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                        </div>
+                        <div class="image_center">
+                            <img src="./img/02_09.png">
+                        </div>
+                        <p>
+                            表示を Split モードにして、Build & Refresh をすると上のような画面になると思います。これは、Typography の初期設定の五種類の文字セットと色使いのプレビューになっています。色の使い方の詳しくは下のリンクのサイトを参照ください。
+                        </p>
+                        <a href="https://m3.material.io/styles/color/roles" target="_blank">Color roles - Material Design 3 - https://m3.material.io/styles/color/roles</a>
+                        <p>
+                            例えば <span class="code">Type.kt</span> のTypographyに次のように追加してみてください。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">Type.kt</span><br>
+                            <pre>import androidx.compose.material3.Typography</pre>
+                            <pre>import androidx.compose.ui.text.TextStyle</pre>
+                            <pre>import androidx.compose.ui.text.font.FontFamily</pre>
+                            <pre>import androidx.compose.ui.text.font.FontWeight</pre>
+                            <pre>import androidx.compose.ui.unit.sp</pre>
+                            <pre><br></pre>
+                            <pre>val AppTypography = Typography(</pre>
+                            <pre>    // 例：大きな見出し用のスタイル</pre>
+                            <pre>    displayLarge = TextStyle(</pre>
+                            <pre>        fontFamily = FontFamily.Default, // デフォルトフォントを使用</pre>
+                            <pre>        fontWeight = FontWeight.Normal,  // 通常の太さ</pre>
+                            <pre>        fontSize = 120.sp,               // フォントサイズ</pre>
+                            <pre>        lineHeight = 64.sp,              // 行の高さ</pre>
+                            <pre>        letterSpacing = (-0.25).sp       // 文字間隔</pre>
+                            <pre>    )</pre>
+                            <pre>)</pre>
+                        </div>
+                        <div class="image_center">
+                            <img src="./img/02_10.png">
+                        </div>
+                        <p>
+                            右上のほうが Out of date ていると思うので更新して Build & Refresh してください。<br>
+                            すると MaterialThemePreview の display Large のフォントサイズがやたらと大きくなっています。
+                            これはクラス <span class="code">Typography()</span> の <span class="code">displayLarge</span> のフォントサイズの初期設定を上書きする。ということを書いてあります。
+                            今後自分の好きなように文字を設定したいときは、このプレビューを参考に Typography をいじってみてください。<br>
+                            このチュートリアルではすべてデフォルトで行きます。<span class="code">Ctrl + /</span> でコメント化などして、無効化しておきましょう。
+                        </p>
+                    </section>
+
+                    <section id="scaffold">
+                        <h2>
+                            Scaffold
+                        </h2>
+                        <p>
+                            次からホーム画面を作っていきましょう。<br>
+                            まず、前のプレビューのプログラムの時のファイルを作成したときのように、com.---.money_recorder のファイルを右クリックして新しい kotlin ファイルを作成してください。
+                        </p>
+                        <div class="image_center_small">
+                            <img src="img/02_11.png" >
+                        </div>
+                        <p>
+                            作成時は File を選択して、名前は ui/screen/HomeScreen としてください。 
+                        </p>
+                        <div class="image_center_small">
+                            <img src="img/02_12.png" >
+                        </div>
+                        <p>
+                            すると ui ファイルの screen ファイルの下に新しくファイルを作ることができます。別スクリーンを作る際はこの screen ファイルに別のファイルを作ってプログラムを書いていく感じになります。<br>
+                            ではまず、次のコードを <span class="code">HomeScreen.kt</span> に写してください。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">HomeScreen.kt</span><br>
+                            <pre>import androidx.compose.runtime.Composable</pre>
+                            <pre>import androidx.compose.ui.tooling.preview.Preview</pre>
+                            <pre><br></pre>
+                            <pre>@Composable</pre>
+                            <pre>fun HomeScreen() {</pre>
+                            <pre>    HomeScreenBody()</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>@Composable</pre>
+                            <pre>private fun HomeScreenBody() {</pre>
+                            <pre>    </pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>//Preview -----------------------------------------</pre>
+                            <pre><br></pre>
+                            <pre>@Preview</pre>
+                            <pre>@Composable</pre>
+                            <pre>fun PreviewHomeScreen() {</pre>
+                            <pre>    HomeScreenBody()</pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            今書いたものはスクリーンのそのうち必要になる関数の一式です。まず <span class="code">HomeScreen()</span> は実機で使われることになるコンポーザブル関数です。
+                            コンポーザブル関数とは <span class="code">@Composable</span> アノテーションがついている関数で、画面に表示される機能を持つ者には大体つきます。もしこれが赤線ついてたりすると 一番上の <span class="code">import_androidx.compose.runtime.Composable</span> がないからだと思われます。これを書かなくても自動入力してくれたりもします。
+                            その中にある <span class="code">HomeScreenBody()</span> はホーム画面を書く本体の関数です。その下の <span class="code">@Preview</span> アノテーションがついた <span class="code">PreviewHomeScreen()</span> はBodyの関数をプレビューするための関数です。
+                            この三つがなくてもいいんじゃないかと思われるかもしれませんが、のちに <span class="code">ViewModel</span> を導入する際にそれはプレビューできなくいろいろ困るので、今後を考えた一式となっています。<br>
+                            では <span class="code">HomeScreenBody()</span> を書いていきましょう。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">HomeScreenBody()</span><br>
+                            <pre>@Composable</pre>
+                            <pre>private fun HomeScreenBody(</pre>
+                            <pre>    </pre>
+                            <pre>) {</pre>
+                            <pre>    Scaffold(</pre>
+                            <pre>        topBar = {</pre>
+                            <pre>            </pre>
+                            <pre>        },</pre>
+                            <pre>        bottomBar = {</pre>
+                            <pre>            </pre>
+                            <pre>        },</pre>
+                            <pre>        floatingActionButton = {</pre>
+                            <pre>            </pre>
+                            <pre>        },</pre>
+                            <pre>    ) { innerPadding -> //戻り値をinnerPaddingに指定</pre>
+                            <pre>        Column(Modifier.padding(innerPadding)) {</pre>
+                            <pre>            </pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            まずは <span class="code">Scaffld()</span> の今回使う大事な部分だけ書き、少し説明します。もしいろいろな文字が赤文字になっている場合はまた、importが足りていません。
+                            その赤線にマウスを合わせると修正の提案が出てくると思うので、<span class="code">Alt + Enter</span>などで自動修正ができると思うので import を追加してください。<br>
+                            引数の topBar bottomBar floatingActionButton に中かっこ{}を代入している形になっています。{}はPythonでいうラムダ式のようなもので新しく関数を作って代入するのではなく{}の中にもう関数を書くという方法です。
+                            これもKotlinのちょっとした癖で、慣れれば結構わかりやすくて、私は好きです。<br>
+                            またScaffoldの{}部分に<span class="code">innerPadding -></span>というものが書いてあると思いますが、これはScaffoldの戻り値をinnerPaddingと名付けて使うといったことを書いています。
+                            これを書かない場合名前は初期値の<span class="code">it</span>になります。それをわかりやすくinnerPaddingとなずけて使用しているというわけです。
+                            もし、itでもinnerPaddingでも使わないと赤文字になりますので、忘れないようにしましょう。
+                            これも理解が難しく、私もはじめは全然わからなかったのですが、今後同じようなことを何回も書くのでそのうちになんとなくでもわかっていくと思います。<br>
+                            innerPadding自体の戻り値の意味なのですが、<span class="code">Column()</span>関数は中のコンポーザブル関数を縦に並べて配置していくという関数で、それの背景のサイズなどを自動でやってくれる的なものです。
+                            昔は<span class="code">Surface()</span>などが使われていたそうですが、最近は<span class="code">Scaffold()</span>がこのinnerPaddingの機能によりよく使われています。
+                        </p>
+                        <p>
+                            では次に、<span class="code">topBar</span>、<span class="code">bottomBar</span>、<span class="code">floatingActionButton</span>を書いていきましょう。
+                            これもAndroid Studioが公式にアンドロイドベースの関数を用意してくれているので簡単に作ることができます。<br>
+                            まず、<span class="code">com.___.money_recorder</span>の下に新しく<span class="code">Components.kt</span>を作りましょう。
+                        </p>
+                        <div class="image_center_small">
+                            <img src="img/02_13.png" >
+                        </div>
+                        <p>
+                            ここにはほかのファイルでも使いまわしする関数を書いていこうと思います。ここにしたのコードを書いてください。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">Components.kt</span><br>
+                            <pre>import androidx.compose.material.icons.Icons</pre>
+                            <pre>import androidx.compose.material.icons.automirrored.filled.ArrowBack</pre>
+                            <pre>import androidx.compose.material3.CenterAlignedTopAppBar</pre>
+                            <pre>import androidx.compose.material3.ExperimentalMaterial3Api</pre>
+                            <pre>import androidx.compose.material3.Icon</pre>
+                            <pre>import androidx.compose.material3.IconButton</pre>
+                            <pre>import androidx.compose.material3.MaterialTheme</pre>
+                            <pre>import androidx.compose.material3.Text</pre>
+                            <pre>import androidx.compose.material3.TopAppBarDefaults</pre>
+                            <pre>import androidx.compose.runtime.Composable</pre>
+                            <pre><br></pre>
+                            <pre>@OptIn(ExperimentalMaterial3Api::class) //バージョンの条件指定のため必要</pre>
+                            <pre>@Composable</pre>
+                            <pre>fun AppTopBar( //引数を書く欄</pre>
+                            <pre>    titleText: String, //上に表示される名前</pre>
+                            <pre>    canBack: Boolean = false, //戻るボタンの有無設定 初期値はfalse</pre>
+                            <pre>    onBackButtonClicked: () -> Unit = {} //関数の引数、初期値は空の関数{}</pre>
+                            <pre>) {</pre>
+                            <pre>    CenterAlignedTopAppBar(</pre>
+                            <pre>        colors = TopAppBarDefaults.topAppBarColors(</pre>
+                            <pre>            containerColor = MaterialTheme.colorScheme.primaryContainer,</pre>
+                            <pre>            titleContentColor = MaterialTheme.colorScheme.primary,</pre>
+                            <pre>        ),</pre>
+                            <pre>        title = { Text(titleText) },</pre>
+                            <pre>        navigationIcon = {</pre>
+                            <pre>            if (canBack)</pre>
+                            <pre>                IconButton(</pre>
+                            <pre>                    onClick = onBackButtonClicked</pre>
+                            <pre>                ) {</pre>
+                            <pre>                    Icon(</pre>
+                            <pre>                        imageVector = Icons.AutoMirrored.Default.ArrowBack,</pre>
+                            <pre>                        contentDescription = null</pre>
+                            <pre>                    )</pre>
+                            <pre>                }</pre>
+                            <pre>        }</pre>
+                            <pre>    )</pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            また、ナビゲーションバーにはアイコンを使うので、そのアイコンをインポートしていきましょう。今回書き換えるのは、<span class="code">Gradle_Scripts</span>のこの二つです。
+                        </p>
+                        <div class="image_center_small">
+                            <img src="img/02_14.png" >
+                        </div>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">build.gradle.kts (Project: MoneyRecorder)</span><br>
+                            <pre>// Top-level build file where you can add configuration options common to all sub-projects/modules.</pre>
+                            <pre>plugins {</pre>
+                            <pre>    alias(libs.plugins.android.application) apply false</pre>
+                            <pre>    alias(libs.plugins.kotlin.android) apply false</pre>
+                            <pre>    alias(libs.plugins.kotlin.compose) apply false</pre>
+                            <pre><br></pre>
+                            <pre>    id("com.google.devtools.ksp") version "2.1.20-2.0.0" apply false //<-追加</pre>
+                            <pre>}</pre>
+                        </div>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">build.gradle.kts (Module :app)</span><br>
+                            <pre>plugins {</pre>
+                            <pre>    alias(libs.plugins.android.application)</pre>
+                            <pre>    alias(libs.plugins.kotlin.android)</pre>
+                            <pre>    alias(libs.plugins.kotlin.compose)</pre>
+                            <pre><br></pre>
+                            <pre>    id("com.google.devtools.ksp") //<-追加</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>android {</pre>
+                            <pre>    namespace = "com.sakura.money_recorder"</pre>
+                            <pre>    compileSdk = 36</pre>
+                            <pre><br></pre>
+                            <pre>    defaultConfig {</pre>
+                            <pre>        applicationId = "com.sakura.money_recorder"</pre>
+                            <pre>        minSdk = 24</pre>
+                            <pre>        targetSdk = 36</pre>
+                            <pre>        versionCode = 1</pre>
+                            <pre>        versionName = "1.0"</pre>
+                            <pre><br></pre>
+                            <pre>        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre>    buildTypes {</pre>
+                            <pre>        release {</pre>
+                            <pre>            isMinifyEnabled = false</pre>
+                            <pre>            proguardFiles(</pre>
+                            <pre>                getDefaultProguardFile("proguard-android-optimize.txt"),</pre>
+                            <pre>                "proguard-rules.pro"</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>    compileOptions {</pre>
+                            <pre>        sourceCompatibility = JavaVersion.VERSION_11</pre>
+                            <pre>        targetCompatibility = JavaVersion.VERSION_11</pre>
+                            <pre>    }</pre>
+                            <pre>    kotlinOptions {</pre>
+                            <pre>        jvmTarget = "11"</pre>
+                            <pre>    }</pre>
+                            <pre>    buildFeatures {</pre>
+                            <pre>        compose = true</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>dependencies {</pre>
+                            <pre><br></pre>
+                            <pre>    implementation(libs.androidx.core.ktx)</pre>
+                            <pre>    implementation(libs.androidx.lifecycle.runtime.ktx)</pre>
+                            <pre>    implementation(libs.androidx.activity.compose)</pre>
+                            <pre>    implementation(platform(libs.androidx.compose.bom))</pre>
+                            <pre>    implementation(libs.androidx.ui)</pre>
+                            <pre>    implementation(libs.androidx.ui.graphics)</pre>
+                            <pre>    implementation(libs.androidx.ui.tooling.preview)</pre>
+                            <pre>    implementation(libs.androidx.material3)</pre>
+                            <pre>    testImplementation(libs.junit)</pre>
+                            <pre>    androidTestImplementation(libs.androidx.junit)</pre>
+                            <pre>    androidTestImplementation(libs.androidx.espresso.core)</pre>
+                            <pre>    androidTestImplementation(platform(libs.androidx.compose.bom))</pre>
+                            <pre>    androidTestImplementation(libs.androidx.ui.test.junit4)</pre>
+                            <pre>    debugImplementation(libs.androidx.ui.tooling)</pre>
+                            <pre>    debugImplementation(libs.androidx.ui.test.manifest)</pre>
+                            <pre><br></pre>
+                            <pre>    //Icon</pre>
+                            <pre>    implementation("androidx.compose.material:material-icons-extended") //<-追加</pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            実質三行の追加です。上に2行の<span class="code">id("com.google.devtools.ksp") version "2.1.20-2.0.0" apply false</span>、<span class="code">id("com.google.devtools.ksp")</span>はおそらく必要なのですが、一回きりでいいです。
+                            下の<span class="code">dependencies {}</span>の中には今後もRoomのとき、ViewModelの時、画面遷移の時に追加します。<br>
+                            このgradleファイルを書き換えたときは、右上のほうに出る<span class="code">Sync Now</span>を押して、同期してください。
+                        </p>
+                        <p>
+                            ここまできてようやく、<span class="code">HomeScreenBody()</span>に書いていきましょう。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">HomeScreenBody()</span><br>
+                            <pre>@Composable</pre>
+                            <pre>private fun HomeScreenBody(</pre>
+                            <pre>    selectedNavIndex: Int = 0,</pre>
+                            <pre>) {</pre>
+                            <pre>    Scaffold(</pre>
+                            <pre>        topBar = {</pre>
+                            <pre>            AppTopBar(titleText = "お小遣い帳")</pre>
+                            <pre>        },</pre>
+                            <pre>        bottomBar = {</pre>
+                            <pre>            val items = listOf("ホーム", "残高", "履歴") //下のナビゲーションバーの要素リスト</pre>
+                            <pre>            val icons = listOf(                       //アイコンリスト</pre>
+                            <pre>                Icons.Outlined.Home,</pre>
+                            <pre>                Icons.Outlined.CreditCard,</pre>
+                            <pre>                Icons.Outlined.History,</pre>
+                            <pre>            )</pre>
+                            <pre>            val selectedIcons = listOf(                //選択されたときのアイコンリスト</pre>
+                            <pre>                Icons.Filled.Home,</pre>
+                            <pre>                Icons.Filled.CreditCard,</pre>
+                            <pre>                Icons.Filled.History,</pre>
+                            <pre>            )</pre>
+                            <pre>            NavigationBar {</pre>
+                            <pre>                items.forEachIndexed { index, itemName -></pre>
+                            <pre>                    NavigationBarItem(</pre>
+                            <pre>                        icon = {</pre>
+                            <pre>                            Icon(</pre>
+                            <pre>                                imageVector = if (index == selectedNavIndex) selectedIcons[index] else icons[index],</pre>
+                            <pre>                                contentDescription = null</pre>
+                            <pre>                            )</pre>
+                            <pre>                        },</pre>
+                            <pre>                        label = { Text(text = itemName) },</pre>
+                            <pre>                        selected = index == selectedNavIndex,</pre>
+                            <pre>                        onClick = {}, //TODO</pre>
+                            <pre>                    )</pre>
+                            <pre>                }</pre>
+                            <pre>            }</pre>
+                            <pre>        },</pre>
+                            <pre>        floatingActionButton = {</pre>
+                            <pre>            FloatingActionButton(</pre>
+                            <pre>                onClick = {} //TODO</pre>
+                            <pre>            ) {</pre>
+                            <pre>                Icon(</pre>
+                            <pre>                    imageVector = Icons.Default.Add,</pre>
+                            <pre>                    contentDescription = null</pre>
+                            <pre>                )</pre>
+                            <pre>            }</pre>
+                            <pre>        },</pre>
+                            <pre>    ) { innerPadding -> //戻り値をinnerPaddingに指定</pre>
+                            <pre>        Column(Modifier.padding(innerPadding)) {</pre>
+                            <pre><br></pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            一度プレビューを見てみましょう。
+                        </p>
+                        <div class="image_center">
+                            <img src="img/02_15.png" >
+                        </div>
+                        <p>
+                            このようにもうなんかいい感じになってますね。<br>
+                            次はデータ型を作っていきましょう。
+                        </p>
+                    </section>
+
+                    <section id="data_class">
+                        <h2>データ型の作成</h2>
+                        <p>
+                            お金の記録のデータ型を作っていきましょう。<br>
+                            まず、<span class="code">com.___.money_recorder</span>の下に次のように新しいデータクラスファイルを作成してください。
+                        </p>
+                        <div class="image_center_small">
+                            <img src="img/02_16.png" >
+                        </div>
+                        <div class="image_center_small">
+                            <img src="img/02_17.png" >
+                        </div>
+                        <p>するとこのようにデータクラスが作れます。このかっこの中に次のように書いていきましょう。</p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">MoneyRecord.kt</span><br>
+                            <pre>package com.sakura.money_recorder.data</pre>
+                            <pre><br></pre>
+                            <pre>data class MoneyRecord(</pre>
+                            <pre>    val id: Int = 0,</pre>
+                            <pre>    val time: Long, //日時記録</pre>
+                            <pre>    val amount: Int, //金額</pre>
+                            <pre>    val category: String = "その他", //カテゴリー</pre>
+                            <pre>    val memo: String = "" //メモ</pre>
+                            <pre>)</pre>
+                        </div>
+                        <p>
+                            今更ではありますが、<span class="code">val</span>とあります。これは変数型の宣言的なので、C#っぽくあります。
+                            ただ<span class="code">var</span>とは違い、後で変わらないものを<span class="code">val</span>、変わるものを<span class="code">var</span>で宣言します。<br>
+                            また、初期値を設定する際はイコールをつけます。<br>
+                            また次に、次のような新しいデータクラスを書き加えてください。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">MoneyRecord.kt</span><br>
+                            <pre>data class MoneyRecordGroup( //月ごとのリストのデータ</pre>
+                            <pre>    val name: String,</pre>
+                            <pre>    val moneyRecordList: List<MoneyRecord></pre>
+                            <pre>)</pre>
+                        </div>
+                        <p>
+                            これは、のちにお金の記録を月ごとでグループ化するときに使います。Roomでは<span class="code">MoneyRecord()</span>を保存しますが、こちらの<span class="code">MoneyRecordGroup()</span>は保存しません。<br>
+                            この例として、またプレビューのため次のようなリストをコピペしておいてください。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">MoneyRecord.kt</span><br>
+                            <pre>val moneyRecordGroupListForTest = listOf<MoneyRecordGroup>(</pre>
+                            <pre>    MoneyRecordGroup(</pre>
+                            <pre>        name = "2025年11月",</pre>
+                            <pre>        moneyRecordList = listOf<MoneyRecord>(</pre>
+                            <pre>            MoneyRecord(</pre>
+                            <pre>                id = 5,</pre>
+                            <pre>                time = 1762083602,</pre>
+                            <pre>                amount = -2400,</pre>
+                            <pre>                category = "食費",</pre>
+                            <pre>                memo = "スーパー"</pre>
+                            <pre>            ),</pre>
+                            <pre>            MoneyRecord(</pre>
+                            <pre>                id = 4,</pre>
+                            <pre>                time = 1762083600,</pre>
+                            <pre>                amount = 60000,</pre>
+                            <pre>                category = "その他",</pre>
+                            <pre>                memo = "バイト代"</pre>
+                            <pre>            ),</pre>
+                            <pre>            MoneyRecord(</pre>
+                            <pre>                id = 3,</pre>
+                            <pre>                time = 1761997204,</pre>
+                            <pre>                amount = -1977,</pre>
+                            <pre>                category = "家",</pre>
+                            <pre>                memo = "電気代"</pre>
+                            <pre>            ),</pre>
+                            <pre>            MoneyRecord(</pre>
+                            <pre>                id = 2,</pre>
+                            <pre>                time = 1761997202,</pre>
+                            <pre>                amount = -1000,</pre>
+                            <pre>                category = "娯楽",</pre>
+                            <pre>                memo = "カラオケ"</pre>
+                            <pre>            ),</pre>
+                            <pre>            MoneyRecord(</pre>
+                            <pre>                id = 1,</pre>
+                            <pre>                time = 1761997200,</pre>
+                            <pre>                amount = -150,</pre>
+                            <pre>                category = "食費",</pre>
+                            <pre>                memo = "コンビニ"</pre>
+                            <pre>            ),</pre>
+                            <pre>        )</pre>
+                            <pre>    ),</pre>
+                            <pre>    MoneyRecordGroup(</pre>
+                            <pre>        name = "2025年10月",</pre>
+                            <pre>        moneyRecordList = listOf<MoneyRecord>(</pre>
+                            <pre>            MoneyRecord(</pre>
+                            <pre>                id = 0,</pre>
+                            <pre>                time = 1761910801,</pre>
+                            <pre>                amount = 100000,</pre>
+                            <pre>                category = "その他",</pre>
+                            <pre>                memo = "初期設定"</pre>
+                            <pre>            )</pre>
+                            <pre>        )</pre>
+                            <pre>    )</pre>
+                            <pre>)</pre>
+                        </div>
+                        <p>
+                            次にカテゴリーのデータ型も作っていきましょう。<span class="code">Category.kt</span>をまた<span class="code">data</span>ディレクトリに作ってください。
+                            そして、次のコードを書いてください。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">Category.kt</span><br>
+                            <pre>import androidx.compose.material.icons.Icons</pre>
+                            <pre>import androidx.compose.material.icons.filled.Coffee</pre>
+                            <pre>import androidx.compose.material.icons.filled.EmojiTransportation</pre>
+                            <pre>import androidx.compose.material.icons.filled.Fastfood</pre>
+                            <pre>import androidx.compose.material.icons.filled.FitnessCenter</pre>
+                            <pre>import androidx.compose.material.icons.filled.Home</pre>
+                            <pre>import androidx.compose.material.icons.filled.Interests</pre>
+                            <pre>import androidx.compose.material.icons.filled.MoreVert</pre>
+                            <pre>import androidx.compose.ui.graphics.vector.ImageVector</pre>
+                            <pre><br></pre>
+                            <pre>data class Category(</pre>
+                            <pre>    val name: String,</pre>
+                            <pre>    val image: ImageVector</pre>
+                            <pre>)</pre>
+                            <pre><br></pre>
+                            <pre>val categoryList = listOf(</pre>
+                            <pre>    Category("食費", Icons.Filled.Fastfood),</pre>
+                            <pre>    Category("交通費", Icons.Filled.EmojiTransportation),</pre>
+                            <pre>    Category("家", Icons.Filled.Home),</pre>
+                            <pre>    Category("日用品", Icons.Filled.Interests),</pre>
+                            <pre>    Category("娯楽", Icons.Filled.Coffee),</pre>
+                            <pre>    Category("部活", Icons.Filled.FitnessCenter),</pre>
+                            <pre>    Category("その他", Icons.Filled.MoreVert),</pre>
+                            <pre>)</pre>
+                        </div>
+                        <p>
+                            では、ホーム画面を作っていきましょう。
+                        </p>
+                    </section>
+
+                    <section id="history">
+                        <h2>
+                            履歴の画面を作る
+                        </h2>
+                        <p>
+                            まずホーム画面の履歴から作っていきましょう。まず、下のような一つの履歴の要素を作りたいので、<span class="code">Components.kt</span>に次のコードを書き加えてください。
+                        </p>
+                        <div class="image_center_handy_flex">
+                            <img src="./img/02_18.png">
+                        </div>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">Components.kt</span><br>
+                            <pre>//お金の記録の小アイテム</pre>
+                            <pre>@Composable</pre>
+                            <pre>fun MoneyRecordItem(</pre>
+                            <pre>    moneyRecord: MoneyRecord,</pre>
+                            <pre>    onClicked: (Int) -> Unit //Intを戻り値とする関数の代入式</pre>
+                            <pre>) {</pre>
+                            <pre>    Column(</pre>
+                            <pre>        Modifier.clickable( //タップ時の処理を追加</pre>
+                            <pre>            onClick = { onClicked(moneyRecord.id) }</pre>
+                            <pre>        )</pre>
+                            <pre>    ) {</pre>
+                            <pre>        Row( //横ならべのボックス</pre>
+                            <pre>            modifier = Modifier.fillMaxWidth(),</pre>
+                            <pre>            verticalAlignment = Alignment.CenterVertically //中央ぞろえ</pre>
+                            <pre>        ) {</pre>
+                            <pre>            Column(</pre>
+                            <pre>                Modifier.weight(10f) //スペースを適度に開ける、割合が10</pre>
+                            <pre>            ) {</pre>
+                            <pre>                var titleText = moneyRecord.category</pre>
+                            <pre>                if (moneyRecord.memo != "") titleText += " - ${moneyRecord.memo}"</pre>
+                            <pre>                Text(</pre>
+                            <pre>                    text = titleText,</pre>
+                            <pre>                    maxLines = 1,</pre>
+                            <pre>                    overflow = TextOverflow.Ellipsis //文が多すぎるとき...となる</pre>
+                            <pre>                )</pre>
+                            <pre>                Text(convertMillisToDate(moneyRecord.time))</pre>
+                            <pre>            }</pre>
+                            <pre>            Spacer(Modifier.weight(1f)) //スペースを適度に開ける、割合が1</pre>
+                            <pre>            Text(formatYen(moneyRecord.amount))</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre>    //下線</pre>
+                            <pre>    HorizontalDivider()</pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            このままコピペしても、<span class="code">convertMillisToDate()</span>と<span class="code">formatYen()</span>が赤文字だと思います。<br>
+                            そこで、新しく<span class="code">Functions.kt</span>を作り、定義していきましょう。
+                        </p>
+                        <div class="image_center_small">
+                            <img src="./img/02_20.png">
+                        </div>
+                        <p>
+                            また<span class="code">com.___.money_recorder</span>の下に<span class="code">Functions.kt</span>をFileで作りましょう。
+                            そして、次の関数をコピペしてください。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">Functions.kt</span><br>
+                            <pre>import android.icu.text.SimpleDateFormat</pre>
+                            <pre>import java.text.NumberFormat</pre>
+                            <pre>import java.util.Date</pre>
+                            <pre>import java.util.Locale</pre>
+                            <pre><br></pre>
+                            <pre>fun getNowMillis(): Long {</pre>
+                            <pre>    return System.currentTimeMillis()</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>fun convertMillisToDate(millis: Long): String {</pre>
+                            <pre>    val formatter = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())</pre>
+                            <pre>    return formatter.format(Date(millis))</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>fun convertMillisToYearMonth(millis: Long): String {</pre>
+                            <pre>    val formatter = SimpleDateFormat("yyyy年MM月", Locale.getDefault())</pre>
+                            <pre>    return formatter.format(Date(millis))</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>fun formatYen(num: Int): String {</pre>
+                            <pre>    val numberFormat = NumberFormat.getNumberInstance(Locale.getDefault())</pre>
+                            <pre>    return "${numberFormat.format(num)} 円"</pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            面倒くさいので今後使うであろう関数四つを追加します。<br>
+                            <span class="code">getNowMillis()</span>は現在時刻を<span class="code">Long</span>型で取得する関数です。お金の記録とき、初期値としてこの関数を使用します。<br>
+                            <span class="code">convertMillisToDate()</span>は<span class="code">Long</span>型を<span class="code">yyyy.mm.dd</span>の形式にフォーマットして変換する関数です。<br>
+                            <span class="code">convertMillisToYearMonth()</span>は先ほどとは違う形式でフォーマットする関数です。<span class="code">moneyRecordGroup</span>にまとめるときに<span class="code">name=</span>に代入して使います。<br>
+                            <span class="code">formatYen()</span>は<span class="code">1000</span>という数字などを<span class="code">1,000 円</span>とフォーマットする関数です。 
+                        </p>
+                        <p>
+                            ここで少しKotlinの関数について書きます。上のような関数の書き方は手続き型のような書き方です。プログラミングの知識のある方ならお分かりではあると思いますが、
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">関数の書き方例</span><br>
+                            <pre>fun Function(/* 引数 */) : /* 戻り値 */ {</pre>
+                            <pre>    /* 処理 */</pre>
+                            <pre>    return ---</pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            このような構文になっています。しかし、Kotlinにはオブジェクト指向型のようなクラス内蔵のような関数も書くことができます。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">オブジェクト指向型関数の書き方例</span><br>
+                            <pre>fun ClassA.Function(/* 引数 */) : ClassA = ClassA(</pre>
+                            <pre>    time = getNowMillis()</pre>
+                            <pre>)</pre>
+                        </div>
+                        <p>
+                            このようにあるクラスインスタンスに対し特定の処理をした新しいクラスにするような関数も書くことができます。そのうち出てくると思います。
+                        </p>
+                        <p>
+                            話は逸れましたが、また再び<span class="code">Components.kt</span>に戻り、赤線にマウスを合わせるとインポートの候補を提示してくれると思うので、インポートしてください。<br>
+                            その次は下のような月別にまとまらせるグループアイテムを作ろうと思います。また<span class="code">Components.kt</span>に書き加えてください。
+                        </p>
+                        <div class="image_center_handy_flex">
+                            <img src="./img/02_19.png">
+                        </div>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">Components.kt</span><br>
+                            <pre>//お金の記録のグループアイテム</pre>
+                            <pre>@Composable</pre>
+                            <pre>fun MoneyRecordGroupItem(</pre>
+                            <pre>    moneyRecordGroup: MoneyRecordGroup,</pre>
+                            <pre>    onClicked: (Int) -> Unit,</pre>
+                            <pre>) {</pre>
+                            <pre>    if (moneyRecordGroup.moneyRecordList.isEmpty()) return //もし空リストの時クラッシュする可能性があるため</pre>
+                            <pre><br></pre>
+                            <pre>    Column {</pre>
+                            <pre>        Spacer(Modifier.height(4.dp))</pre>
+                            <pre><br></pre>
+                            <pre>        Column(</pre>
+                            <pre>            modifier = Modifier</pre>
+                            <pre>                .background(MaterialTheme.colorScheme.surfaceContainer)</pre>
+                            <pre>        ) {</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = moneyRecordGroup.name,</pre>
+                            <pre>                color = MaterialTheme.colorScheme.onSurface,</pre>
+                            <pre>                modifier = Modifier</pre>
+                            <pre>                    .padding(horizontal = 16.dp, vertical = 2.dp)</pre>
+                            <pre>                    .fillMaxWidth()</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre><br></pre>
+                            <pre>        Column(</pre>
+                            <pre>            modifier = Modifier</pre>
+                            <pre>                .padding(horizontal = 16.dp)</pre>
+                            <pre>        ) {</pre>
+                            <pre>            // moneyRecordGroupのなかのmoneyRecord一つ一つに対して処理を実行する関数</pre>
+                            <pre>            moneyRecordGroup.moneyRecordList.forEach { moneyRecord -> //戻り値をmoneyRecordに指定</pre>
+                            <pre>                MoneyRecordItem( //先ほどの小アイテム</pre>
+                            <pre>                    moneyRecord = moneyRecord,</pre>
+                            <pre>                    onClicked = onClicked, //関数の代入式 書いてはないがIntの引き渡しも行われている</pre>
+                            <pre>                )</pre>
+                            <pre>            }</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            これで準備は整いました。<span class="code">HomeScreen.kt</span>で残高画面を作っていきましょう。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">HomeScreen.kt</span><br>
+                            <pre>@Composable</pre>
+                            <pre>private fun HomeScreenBody(</pre>
+                            <pre>    selectedNavIndex: Int = 0,</pre>
+                            <pre>) {</pre>
+                            <pre>    Scaffold(</pre>
+                            <pre><br></pre>
+                            <pre>        省略</pre>
+                            <pre><br></pre>
+                            <pre>    ) { innerPadding -> //戻り値をinnerPaddingに指定</pre>
+                            <pre>        Column(Modifier.padding(innerPadding)) {</pre>
+                            <pre><br></pre>
+                            <pre>            //以下を追加</pre>
+                            <pre>            if (selectedNavIndex == 0) { //ホーム</pre>
+                            <pre><br></pre>
+                            <pre>            }</pre>
+                            <pre>            else if (selectedNavIndex == 1) { //残高</pre>
+                            <pre><br></pre>
+                            <pre>            }</pre>
+                            <pre>            else if (selectedNavIndex == 2) { //履歴</pre>
+                            <pre>                LazyColumn { //可変のリストにはこのLazyColumnを使う</pre>
+                            <pre>                    items(</pre>
+                            <pre>                        items = moneyRecordGroupListForTest, //TODO</pre>
+                            <pre>                        key = { it.name } //これを指定することで処理軽減になる</pre>
+                            <pre>                    ) { group -></pre>
+                            <pre>                        MoneyRecordGroupItem(</pre>
+                            <pre>                            moneyRecordGroup = group,</pre>
+                            <pre>                            onClicked = {} //TODO</pre>
+                            <pre>                        )</pre>
+                            <pre>                    }</pre>
+                            <pre>                }</pre>
+                            <pre>            }</pre>
+                            <pre><br></pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            <span class="code">Column</span>の中に追加しました。<span class="code">selectedNavIndex</span>によって画面を切り替えるため、このように<span class="code">if</span>条件文を使用します。
+                            また、可変のリストに対して関数を使うとき<span class="code">LazyColumn</span>を使用する必要があります。ただし、<span class="code">MoneyRecordGroupItem()</span>でそれを使うとエラーが出ます。
+                            <span class="code">LazyColumn</span>に<span class="code">LazyColumn</span>を重ねることはできなく、一番大きい枠組みで使用する感じで使いましょう。<br>
+                            プレビューに下のように<span class="code">selectedNavIndex = 2</span>と指定してBuild&Refreshをすると次のようにうまくできていることがわかります。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">HomeScreen.kt</span><br>
+                            <pre>@Preview</pre>
+                            <pre>@Composable</pre>
+                            <pre>fun PreviewHomeScreen() {</pre>
+                            <pre>    HomeScreenBody(</pre>
+                            <pre>        selectedNavIndex = 2,</pre>
+                            <pre>    )</pre>
+                            <pre>}</pre>
+                        </div>
+                        <div class="image_center">
+                            <img src="./img/02_21.png">
+                        </div>
+                    </section>
+
+                    <section id="balance">
+                        <h2>
+                            残高画面を作る
+                        </h2>
+                        <p>
+                            では、次は残高画面を作っていきましょう。これは主にUIだけなので頑張って移すかコピペしてください。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">HomeScreen.kt > HomeScreenBody()</span><br>
+                            <pre>else if (selectedNavIndex == 1) { //残高</pre>
+                            <pre>    Column(</pre>
+                            <pre>        modifier = Modifier.padding(16.dp) //いい感じにスペーシング</pre>
+                            <pre>    ) {</pre>
+                            <pre>        Text(text = " 総額 ")</pre>
+                            <pre>        Row {</pre>
+                            <pre>            Spacer(Modifier.weight(1f))</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = formatYen(moneyRecordGroupListForTest.sumOf { it.moneyRecordList.sumOf { moneyRecord -> moneyRecord.amount } }),</pre>
+                            <pre>                style = MaterialTheme.typography.headlineLarge</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>        HorizontalDivider(Modifier.padding(bottom = 16.dp))</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                        </div>
+                        <div class="image_center_handy_flex">
+                            <img src="./img/02_22.png">
+                        </div>
+                        <p>
+                            上の総額の部分ができました。総額の計算は、<span class="code">.sumOf{it}</span>を使って上のように書きます。
+                        </p>
+                        <p>
+                            次は、今月の支出をぱっと見できるようなカードを作っていきましょう。先ほどの<span class="code">Column</span>のなかに続けて書いてください。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">HomeScreen.kt > HomeScreenBody()</span><br>
+                            <pre>//今月のGroupの取得</pre>
+                            <pre>val moneyRecordGroupListNowMonth = moneyRecordGroupListForTest.find {</pre>
+                            <pre>    it.name == convertMillisToYearMonth(getNowMillis())</pre>
+                            <pre>}?.moneyRecordList //見つからなかった時ための"?." これはList?になる</pre>
+                            <pre><br></pre>
+                            <pre>//月別の収入支出</pre>
+                            <pre>Card(</pre>
+                            <pre>    modifier = Modifier</pre>
+                            <pre>        .fillMaxWidth()</pre>
+                            <pre>) {</pre>
+                            <pre>    Column(Modifier.padding(16.dp)) {</pre>
+                            <pre>        Row {</pre>
+                            <pre>            Text("月別の収入、支出")</pre>
+                            <pre>        }</pre>
+                            <pre>        Text(</pre>
+                            <pre>            text = "今月：${convertMillisToYearMonth(getNowMillis())}",</pre>
+                            <pre>            style = MaterialTheme.typography.headlineMedium</pre>
+                            <pre>        )</pre>
+                            <pre>        HorizontalDivider(Modifier.padding(bottom = 8.dp))</pre>
+                            <pre>        Row {</pre>
+                            <pre>            Spacer(Modifier.width(8.dp))</pre>
+                            <pre>            Text("収入")</pre>
+                            <pre>            Spacer(Modifier.weight(1f))</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = formatYen(</pre>
+                            <pre>                    moneyRecordGroupListNowMonth</pre>
+                            <pre>                        ?.filter { it.amount >= 0 }</pre>
+                            <pre>                        ?.sumOf { it.amount } ?: 0, //もしListが見つからなかったら0となるように</pre>
+                            <pre>                ),</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>        Row {</pre>
+                            <pre>            Spacer(Modifier.width(8.dp))</pre>
+                            <pre>            Text("支出")</pre>
+                            <pre>            Spacer(Modifier.weight(1f))</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = formatYen(</pre>
+                            <pre>                    moneyRecordGroupListNowMonth</pre>
+                            <pre>                        ?.filter { it.amount <= 0 }</pre>
+                            <pre>                        ?.sumOf { it.amount } ?: 0,</pre>
+                            <pre>                ),</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>        Spacer(Modifier.height(8.dp))</pre>
+                            <pre>        Row {</pre>
+                            <pre>            Spacer(Modifier.width(8.dp))</pre>
+                            <pre>            Text("総計")</pre>
+                            <pre>            Spacer(Modifier.weight(1f))</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = formatYen(</pre>
+                            <pre>                    moneyRecordGroupListNowMonth?.sumOf { it.amount } ?: 0,</pre>
+                            <pre>                ),</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                        </div>
+                        <div class="image_center_handy_flex">
+                            <img src="./img/02_23.png">
+                        </div>
+                        <p>
+                            <span class="code">Card(){}</span>に書きました。<br>
+                            また、今回のは<span class="code">?.</span>を多用しています。Kotlinではからかもしれないものに<span class="code">?</span>を付けます。
+                            今回は今月のお金の記録が見つからないときが想定できるので<span class="code">?:</span>を使って、空の時は0にするという処理を書きました。<br>
+                            また、<span class="code">.filter{}</span>関数を使って中かっこないの条件を満たすものだけで<span class="code">.sumOf{}</span>などする処理も書いてあります。
+                        </p>
+                        <p>
+                            次は、カテゴリーごとの支出を一覧できるような画面遷移のためにカードを作っていきましょう。今回は遷移先と遷移コードは書きません。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">HomeScreen.kt > HomeScreenBody()</span><br>
+                            <pre>//スペースをあける</pre>
+                            <pre>Spacer(Modifier.height(16.dp))</pre>
+                            <pre><br></pre>
+                            <pre>//カテゴリー別の収入支出</pre>
+                            <pre>Card(</pre>
+                            <pre>    modifier = Modifier</pre>
+                            <pre>        .fillMaxWidth()</pre>
+                            <pre>        .clickable(</pre>
+                            <pre>            onClick = {} //TODO</pre>
+                            <pre>        )</pre>
+                            <pre>) {</pre>
+                            <pre>    Column(Modifier.padding(16.dp)) {</pre>
+                            <pre>        Row {</pre>
+                            <pre>            Text("カテゴリ別の収入、支出")</pre>
+                            <pre>            Spacer(Modifier.weight(1f))</pre>
+                            <pre>            Icon(</pre>
+                            <pre>                imageVector = Icons.Filled.ChevronRight,</pre>
+                            <pre>                contentDescription = null</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>        Text(</pre>
+                            <pre>            text = "今月：${convertMillisToYearMonth(getNowMillis())}",</pre>
+                            <pre>            style = MaterialTheme.typography.headlineMedium</pre>
+                            <pre>        )</pre>
+                            <pre>        HorizontalDivider(Modifier.padding(bottom = 8.dp))</pre>
+                            <pre>        LazyColumn {</pre>
+                            <pre>            items(</pre>
+                            <pre>                items = categoryList,</pre>
+                            <pre>                key = { it.name }</pre>
+                            <pre>            ) { category -></pre>
+                            <pre>                Row {</pre>
+                            <pre>                    Spacer(Modifier.width(8.dp))</pre>
+                            <pre>                    Text(category.name)</pre>
+                            <pre>                    Spacer(Modifier.weight(1f))</pre>
+                            <pre>                    Text(</pre>
+                            <pre>                        text = formatYen(</pre>
+                            <pre>                            moneyRecordGroupListNowMonth</pre>
+                            <pre>                                ?.filter { it.category == category.name }</pre>
+                            <pre>                                ?.sumOf { it.amount } ?: 0,</pre>
+                            <pre>                        ),</pre>
+                            <pre>                    )</pre>
+                            <pre>                }</pre>
+                            <pre>            }</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                        </div>
+                        <div class="image_center_handy_flex">
+                            <img src="./img/02_24.png">
+                        </div>
+                        <p>
+                            これで残高画面もできました。
+                        </p>
+                        <p>
+                        </p>
+                    </section>
+
+                    <section id="conclusion">
+                        <h2>まとめ</h2>
+                        <p>
+                            今回はここまでとします。Kotilnの基礎的な部分がほんの少しでもわかれば幸いです。
+                        </p>
+                        <p>
+                            次は記録を追加する画面を作って、画面遷移のシステムを<span class="code">Navigation</span>を使って作っていこうと思います。
+                        </p>
+                    </section>
+                </main>
+
+                <aside id="side_bar">
+                    <p>大元</p>
+                    <nav>
+                        <ul>
+                            <li><a href="../index.html">index.html</a></li>
+                        </ul>
+                    </nav>
+                    <p>お小遣い帳を作る</p>
+                    <nav>
+                        <ul>
+                            <li><a href="money_recorder_01.html" target="_blank">#01 プロジェクト作成</a></li>
+                            <li>#02 今回</li>
+                        </ul>
+                    </nav>
+                </aside>
+            </div>
+        </div>
+    </body>
+</html>
