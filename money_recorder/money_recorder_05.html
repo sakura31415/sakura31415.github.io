@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="説明">
+
+        <title>Android Studioでお小遣い帳を作る#05 - Room導入編</title>
+
+        <link rel="stylesheet" href="../css/style.css">
+
+        <!-- Google font -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&family=Noto+Sans+Mono:wght@100..900&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <div class="container">
+            <header id="header">
+                sakura ブログ
+            </header>
+
+            <div class="content">
+                <main id="main">
+                    <!-- タイトル -->
+                    <section class="title">
+                        <h1>
+                            Android Studioでお小遣い帳を作る #05 <br>
+                            Room導入編
+                        </h1>
+                        <p>2025/11/19 sakura</p>
+                    </section>
+
+                    <!-- 前書き -->
+                    <section class="">
+                        <h2>前書き</h2>
+                        <p>
+                            前回まででホーム画面と記録画面を作りました。今回は記録画面で入力した記録を永久保存するべく、Roomを導入するところまでやろうと思います。<br>
+                            私は一度このRoom導入でAndroidアプリ開発を挫折しました。
+                            公式チュートリアルでは説明不足な部分もありまして、最近Android Studioに追加された機能のGeminiに聞いてみたところ、一発で解決しました。
+                            皆さんも何かわからない点があったら聞いてみてください。結構的を得たことを言ってくれます。
+                        </p>
+                    </section>
+
+                    <!-- 目次 -->
+                    <section id="index">
+                        <h2>目次</h2>
+                        <nav>
+                            <ul>
+                                <li><a href="#gradle">gradleファイルに付け足し</a></li>
+                                <li><a href="#manifest">manifestファイルの書き足し</a></li>
+                                <li><a href="#database">データベースの作成</a></li>
+                                <li><a href="#application">Application()の作成</a></li>
+                                <li><a href="#home">ホーム画面編</a></li>
+                                <li><a href="#input">記録画面編</a></li>
+                                <li><a href="#test">実機テストとまとめ</a></li>
+                            </ul>
+                        </nav>
+                    </section>
+
+                    <section id="gradle">
+                        <h2>gradleファイルに付け足し</h2>
+                        <p>
+                            Roomの導入にもgradleファイルの<span class="code">dependencies{}</span>に書き足す必要があります。
+                            以下のコードを書き加えて、同期してください。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">build.gradle.kts (Module :app)</span><br>
+                            <pre>dependencies {</pre>
+                            <pre><br></pre>
+                            <pre>    implementation(libs.androidx.core.ktx)</pre>
+                            <pre>    implementation(libs.androidx.lifecycle.runtime.ktx)</pre>
+                            <pre>    implementation(libs.androidx.activity.compose)</pre>
+                            <pre>    implementation(platform(libs.androidx.compose.bom))</pre>
+                            <pre>    implementation(libs.androidx.ui)</pre>
+                            <pre>    implementation(libs.androidx.ui.graphics)</pre>
+                            <pre>    implementation(libs.androidx.ui.tooling.preview)</pre>
+                            <pre>    implementation(libs.androidx.material3)</pre>
+                            <pre>    testImplementation(libs.junit)</pre>
+                            <pre>    androidTestImplementation(libs.androidx.junit)</pre>
+                            <pre>    androidTestImplementation(libs.androidx.espresso.core)</pre>
+                            <pre>    androidTestImplementation(platform(libs.androidx.compose.bom))</pre>
+                            <pre>    androidTestImplementation(libs.androidx.ui.test.junit4)</pre>
+                            <pre>    debugImplementation(libs.androidx.ui.tooling)</pre>
+                            <pre>    debugImplementation(libs.androidx.ui.test.manifest)</pre>
+                            <pre><br></pre>
+                            <pre>    //Icon</pre>
+                            <pre>    implementation("androidx.compose.material:material-icons-extended")</pre>
+                            <pre><br></pre>
+                            <pre>    //Navigation</pre>
+                            <pre>    implementation("androidx.navigation:navigation-compose:2.9.6")</pre>
+                            <pre><br></pre>
+                            <pre>    //ViewModel</pre>
+                            <pre>    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")</pre>
+                            <pre><br></pre>
+                            <pre><span class="add">    //Room</span></pre>
+                            <pre><span class="add">    implementation("androidx.room:room-runtime:2.8.3")</span></pre>
+                            <pre><span class="add">    implementation("androidx.room:room-ktx:2.8.3")</span></pre>
+                            <pre><span class="add">    ksp("androidx.room:room-compiler:2.8.3")</span></pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            これで今回のチュートリアルに必要なgradleファイルの書き足しは以上となります。
+                        </p>
+                    </section>
+
+                    <section id="manifest">
+                        <h2>AndroidManifest.xmlに書き足し</h2>
+                        <p>
+                            次に公式チュートリアルにはありませんが、Roomを使用するうえで必須である、<span class="code">AndroidManifest.xml</span>にある要素を書き足します。
+                            そのファイルは<span class="code">app>manifests>AndroidManifest.xml</span>にあります。
+                            そして次のコードを書き足してください。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">AndroidManifest.xml</span><br>
+                            <pre>&lt;?xml version="1.0" encoding="utf-8"?&gt;</pre>
+                            <pre>&lt;manifest xmlns:android="http://schemas.android.com/apk/res/android"</pre>
+                            <pre>    xmlns:tools="http://schemas.android.com/tools"&gt;</pre>
+                            <pre><br></pre>
+                            <pre>    &lt;application</pre>
+                            <pre><span class="add">        android:name=".MoneyRecorderApplication"</span></pre>
+                            <pre>        android:allowBackup="true"</pre>
+                            <pre>        android:dataExtractionRules="@xml/data_extraction_rules"</pre>
+                            <pre>        android:fullBackupContent="@xml/backup_rules"</pre>
+                            <pre>        android:icon="@mipmap/ic_launcher"</pre>
+                            <pre>        android:label="@string/app_name"</pre>
+                            <pre>        android:roundIcon="@mipmap/ic_launcher_round"</pre>
+                            <pre>        android:supportsRtl="true"</pre>
+                            <pre>        android:theme="@style/Theme.MoneyRecorder"&gt;</pre>
+                            <pre>        &lt;activity</pre>
+                            <pre>            android:name=".MainActivity"</pre>
+                            <pre>            android:exported="true"</pre>
+                            <pre><span class="add">            android:label="@string/app_name"</span></pre>
+                            <pre>            android:theme="@style/Theme.MoneyRecorder"&gt;</pre>
+                            <pre>            &lt;intent-filter&gt;</pre>
+                            <pre>                &lt;action android:name="android.intent.action.MAIN" /&gt;</pre>
+                            <pre><br></pre>
+                            <pre>                &lt;category android:name="android.intent.category.LAUNCHER" /&gt;</pre>
+                            <pre>            &lt;/intent-filter&gt;</pre>
+                            <pre>        &lt;/activity&gt;</pre>
+                            <pre>    &lt;/application&gt;</pre>
+                            <pre>&lt;/manifest&gt;</pre>
+                        </div>
+                        <p>
+                            一行目の赤ラインが引いてある文を付け足してください。現在赤線が引かれると思いますが、後で解決するのほおっておきましょう<br>
+                            二行目の赤ラインが引いてある文はアプリの表示名となります。
+                            実機でテストした際、アプリをインストールしたようにアプリが表示されると思いますが、それを日本語の「お小遣い帳」としたいので、<span class="code">"お小遣い帳"</span>としておきます。<br>
+                            そして、gradleファイルと同様、同期しておきましょう。
+                        </p>
+                    </section>
+
+                    <section id="database">
+                        <h2>データベースの作成</h2>
+                        <p>
+                            今回永久保存するデータは<span class="code">MoneyRecord()</span>クラスです。公式チュートリアルでは別ファイルを作成していましたが、私はデータクラスが書いてある<span class="code">MoneyRecord.kt</span>に書き足す形で書いていくことをお勧めします。
+                            以下のコードを書き写してください。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">MoneyRecord.kt</span><br>
+                            <pre><span class="add">@Entity(tableName = "money_records") //追加</span></pre>
+                            <pre>data class MoneyRecord(</pre>
+                            <pre><span class="add">    @PrimaryKey(autoGenerate = true) //追加</span></pre>
+                            <pre>    val id: Int = 0,</pre>
+                            <pre>    val time: Long, //日時記録</pre>
+                            <pre>    val amount: Int, //金額</pre>
+                            <pre>    val category: String = "その他", //カテゴリー</pre>
+                            <pre>    val memo: String = "" //メモ</pre>
+                            <pre>)</pre>
+                            <pre><br></pre>
+                            <pre>省略 以下を追加</pre>
+                            <pre><br></pre>
+                            <pre>//Dao ----------------------------------------------------------------------------------------------</pre>
+                            <pre>@Dao</pre>
+                            <pre>interface MoneyRecordDao {</pre>
+                            <pre>    @Query("SELECT * from money_records ORDER BY time DESC, id DESC")</pre>
+                            <pre>    fun getAllItems(): Flow&lt;List&lt;MoneyRecord&gt;&gt;</pre>
+                            <pre><br></pre>
+                            <pre>    @Query("SELECT * from money_records WHERE id = :id")</pre>
+                            <pre>    fun getItem(id: Int): Flow&lt;MoneyRecord&gt;</pre>
+                            <pre><br></pre>
+                            <pre><br></pre>
+                            <pre>    @Insert(onConflict = OnConflictStrategy.Companion.IGNORE)</pre>
+                            <pre>    suspend fun insert(item: MoneyRecord)</pre>
+                            <pre><br></pre>
+                            <pre>    @Update</pre>
+                            <pre>    suspend fun update(item: MoneyRecord)</pre>
+                            <pre><br></pre>
+                            <pre>    @Delete</pre>
+                            <pre>    suspend fun delete(item: MoneyRecord)</pre>
+                            <pre><br></pre>
+                            <pre>    @Query("DELETE FROM money_records WHERE id = :id")</pre>
+                            <pre>    suspend fun deleteById(id: Int)</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>//Repository ---------------------------------------------------------------------------------------</pre>
+                            <pre>interface MoneyRecordRepository {</pre>
+                            <pre>    fun getAllItemsStream(): Flow&lt;List&lt;MoneyRecord&gt;&gt;</pre>
+                            <pre><br></pre>
+                            <pre>    fun getItemStream(id: Int): Flow&lt;MoneyRecord?&gt;</pre>
+                            <pre><br></pre>
+                            <pre>    suspend fun insertItem(item: MoneyRecord)</pre>
+                            <pre><br></pre>
+                            <pre>    suspend fun deleteItem(item: MoneyRecord)</pre>
+                            <pre><br></pre>
+                            <pre>    suspend fun updateItem(item: MoneyRecord)</pre>
+                            <pre><br></pre>
+                            <pre>    suspend fun deleteItemById(id: Int)</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>class OfflineMoneyRecordsRepository(private val moneyRecordDao: MoneyRecordDao) :</pre>
+                            <pre>    MoneyRecordRepository {</pre>
+                            <pre>    override fun getAllItemsStream(): Flow&lt;List&lt;MoneyRecord&gt;&gt; = moneyRecordDao.getAllItems()</pre>
+                            <pre><br></pre>
+                            <pre>    override fun getItemStream(id: Int): Flow&lt;MoneyRecord?&gt; = moneyRecordDao.getItem(id)</pre>
+                            <pre><br></pre>
+                            <pre>    override suspend fun insertItem(item: MoneyRecord) = moneyRecordDao.insert(item)</pre>
+                            <pre><br></pre>
+                            <pre>    override suspend fun deleteItem(item: MoneyRecord) = moneyRecordDao.delete(item)</pre>
+                            <pre><br></pre>
+                            <pre>    override suspend fun updateItem(item: MoneyRecord) = moneyRecordDao.update(item)</pre>
+                            <pre><br></pre>
+                            <pre>    override suspend fun deleteItemById(id: Int) = moneyRecordDao.deleteById(id)</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>//Database -----------------------------------------------------------------------------------------</pre>
+                            <pre>@Database(entities = [MoneyRecord::class], version = 1, exportSchema = false)</pre>
+                            <pre>abstract class MoneyRecordDatabase : RoomDatabase() {</pre>
+                            <pre><br></pre>
+                            <pre>    abstract fun moneyRecordDao(): MoneyRecordDao</pre>
+                            <pre><br></pre>
+                            <pre>    companion object {</pre>
+                            <pre>        @Volatile</pre>
+                            <pre>        private var Instance: MoneyRecordDatabase? = null</pre>
+                            <pre><br></pre>
+                            <pre>        fun getDatabase(context: Context): MoneyRecordDatabase {</pre>
+                            <pre>            return Instance ?: synchronized(this) {</pre>
+                            <pre>                val instance = Room.databaseBuilder(</pre>
+                            <pre>                    context.applicationContext,</pre>
+                            <pre>                    MoneyRecordDatabase::class.java,</pre>
+                            <pre>                    "database_money_record"</pre>
+                            <pre>                ).build()</pre>
+                            <pre>                Instance = instance</pre>
+                            <pre>                instance</pre>
+                            <pre>            }</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            今回は<span class="code">MoneyRecord()</span>のみ永久保存するのでこれでよいですが、例えばカテゴリーを今後アプリ内で追加したいなどという、カテゴリーも永久保存するときは、この<span class="code">Dao()</span>や<span class="code">Database()</span>クラスをまた作る必要があります。
+                            しかし、これは応用可能です。<span class="code">MoneyRecord()</span>を保存したいクラス名に変えてやるだけで使えるようになると思います。
+                        </p>
+                        <p>
+                            では中身の解説をしていこうと思います。<br>
+                            まず、保存したいデータクラスに対し<span class="code">@Entity</span>アノテーションをつける必要があります。また、どれか一つの中身の変数に対し<span class="code">@PrimaryKey</span>アノテーションをつける必要もあります。
+                            今回は<span class="code">id</span>にしました。また<sapn class="code">autoGenerate=true</sapn>としてあり、毎回別のidを割り当てる必要はありません。こうすることで、毎回別のデータを保存することができます。
+                        </p>
+                        <p>
+                            <span class="code">Dao{}</span>についてですが、データの保存、読み込みにはSQLを使用しているそうです。その橋渡し的なのが恐れくこの<span class="code">Dao{}</span>と私は解釈しています。<br>
+                            <span class="code">Repository{}</span>については、これをアプリは変数的に保存したり引き渡したりしています。のちに出てくると思います。おそらくこれはインターネット上のリポジトリの定義で、次の
+                            <span class="code">OfflineRepository{}</span>はそれを継承し、アプリ内のファイルに保存するためのリポジトリと思われます。<br>
+                            <span class="code">Database()</span>につきましては、おそらく前のリポジトリなどをアプリ開始時に作成したり、取得したりするものだと思われます。
+                        </p>
+                    </section>
+
+                    <section id="application">
+                        <h2>Application()の作成</h2>
+                        <p>
+                            次にアプリ内にデータとして保存するための<span class="code">AppContainer{}</span>を作成するための<span class="code">Application{}</span>を作成していきます。
+                            <span class="code">com.___.money_recorder</span>直下に<span class="code">MoneyRecorderApplication.kt</span>をclassで作成してください。
+                        </p>
+                        <div class="image_center_small">
+                            <img src="./img/05_00.png" alt="">
+                        </div>
+                        <p>
+                            そして以下のコードを加えてください。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">MoneyRecorderApplication.kt</span><br>
+                            <pre>import android.app.Application</pre>
+                            <pre>import android.content.Context</pre>
+                            <pre>import com.sakura.money_recorder.data.MoneyRecordDatabase</pre>
+                            <pre>import com.sakura.money_recorder.data.MoneyRecordRepository</pre>
+                            <pre>import com.sakura.money_recorder.data.OfflineMoneyRecordsRepository</pre>
+                            <pre><br></pre>
+                            <pre>class MoneyRecorderApplication: Application() {</pre>
+                            <pre>    lateinit var container: AppContainer</pre>
+                            <pre><br></pre>
+                            <pre>    override fun onCreate() {</pre>
+                            <pre>        super.onCreate()</pre>
+                            <pre>        container = AppDataContainer(this)</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre>    interface AppContainer {</pre>
+                            <pre>        val moneyRecordRepository: MoneyRecordRepository</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre>    class AppDataContainer(private val context: Context) : AppContainer {</pre>
+                            <pre>        override val moneyRecordRepository: MoneyRecordRepository by lazy {</pre>
+                            <pre>            OfflineMoneyRecordsRepository(MoneyRecordDatabase.getDatabase(context).moneyRecordDao())</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                        </div>                    
+                        <p>
+                            正直これは何をやっているかはわからないのですが、もしデータベースがアプリにあったなら読み込み、なかったのなら作成するといったものだと思います。<br>
+                            ここでまた、<span class="code">manifest</span>ファイルに戻ると赤線が消えていると思います。
+                        </p>
+                    </section>
+
+                    <section id="home">
+                        <h2>ホーム画面でデータベースを使えるようにする</h2>
+                        <p>
+                            では実際にデータベースを使えるようにしていきましょう。まずはホーム画面からです。<span class="code">ViewModel()</span>のほうからやっていきましょう。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">HomeScreenViewModel.kt</span><br>
+                            <pre>class HomeScreenViewModel(</pre>
+                            <pre><span class="add">    private val moneyRecordRepository: MoneyRecordRepository</span></pre>
+                            <pre>) : ViewModel() {</pre>
+                            <pre>    //NavigationBar関連 -----------------------------------------------------------------------------</pre>
+                            <pre>    var selectedNavigationItem by mutableIntStateOf(0) //可変変数の定義</pre>
+                            <pre>        private set                                           //ViewModelでのみ変更可能</pre>
+                            <pre><br></pre>
+                            <pre>    fun updateSelectedNavigationItem(i: Int) {                //変更する際の関数</pre>
+                            <pre>        selectedNavigationItem = i</pre>
+                            <pre>    }</pre>
+                            <pre>    </pre>
+                            <pre>    </pre>
+                            <pre><span class="add">    val moneyRecordGroupMonthList: StateFlow&lt;List&lt;MoneyRecordGroup&gt;&gt; =</span></pre>
+                            <pre><span class="add">        moneyRecordRepository.getAllItemsStream().map { moneyRecordList -&gt;</span></pre>
+                            <pre><span class="add">            moneyRecordList</span></pre>
+                            <pre><span class="add">                .groupBy { convertMillisToYearMonth(it.time) }</span></pre>
+                            <pre><span class="add">                .map {</span></pre>
+                            <pre><span class="add">                    MoneyRecordGroup(</span></pre>
+                            <pre><span class="add">                        name = it.key,</span></pre>
+                            <pre><span class="add">                        moneyRecordList = it.value</span></pre>
+                            <pre><span class="add">                    )</span></pre>
+                            <pre><span class="add">                }</span></pre>
+                            <pre><span class="add">        }.stateIn(</span></pre>
+                            <pre><span class="add">            scope = viewModelScope,</span></pre>
+                            <pre><span class="add">            started = SharingStarted.WhileSubscribed(5000),</span></pre>
+                            <pre><span class="add">            initialValue = moneyRecordGroupListForTest</span></pre>
+                            <pre><span class="add">        )</span></pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            まず、引数部分でリポジトリを受け取ります。<br>
+                            そして、新しくリストを<span class="code">StateFlow</span>として受け取ります。
+                            <span class="code">Dao</span>のほうで<span class="code">Flow</span>でやっているのでこうする必要があります。
+                            それを<span class="code">.map{}</span>、<span class="code">.groupBy{}</span>をうまく使って<span class="code">MoneyRecordGroupList</span>に落とし込んでいる感じです。<br>
+                            また、<span class="code">.stateIn()</span>は書く必要があり、<span class="code">initialValue</span>で仮の初期値を設定して、UIのクラッシュを防いでいます。
+                        </p>
+                        <p>
+                            では、<span class="code">HomeScreen.kt</span>のほうで使っていきましょう。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">HomeScreen.kt</span><br>
+                            <pre>import androidx.compose.foundation.clickable</pre>
+                            <pre>import androidx.compose.foundation.layout.Column</pre>
+                            <pre>import androidx.compose.foundation.layout.Row</pre>
+                            <pre>import androidx.compose.foundation.layout.Spacer</pre>
+                            <pre>import androidx.compose.foundation.layout.fillMaxWidth</pre>
+                            <pre>import androidx.compose.foundation.layout.height</pre>
+                            <pre>import androidx.compose.foundation.layout.padding</pre>
+                            <pre>import androidx.compose.foundation.layout.width</pre>
+                            <pre>import androidx.compose.foundation.lazy.LazyColumn</pre>
+                            <pre>import androidx.compose.foundation.lazy.items</pre>
+                            <pre>import androidx.compose.material.icons.Icons</pre>
+                            <pre>import androidx.compose.material.icons.filled.Add</pre>
+                            <pre>import androidx.compose.material.icons.filled.ChevronRight</pre>
+                            <pre>import androidx.compose.material.icons.filled.CreditCard</pre>
+                            <pre>import androidx.compose.material.icons.filled.History</pre>
+                            <pre>import androidx.compose.material.icons.filled.Home</pre>
+                            <pre>import androidx.compose.material.icons.outlined.CreditCard</pre>
+                            <pre>import androidx.compose.material.icons.outlined.History</pre>
+                            <pre>import androidx.compose.material.icons.outlined.Home</pre>
+                            <pre>import androidx.compose.material3.Card</pre>
+                            <pre>import androidx.compose.material3.FloatingActionButton</pre>
+                            <pre>import androidx.compose.material3.HorizontalDivider</pre>
+                            <pre>import androidx.compose.material3.Icon</pre>
+                            <pre>import androidx.compose.material3.MaterialTheme</pre>
+                            <pre>import androidx.compose.material3.NavigationBar</pre>
+                            <pre>import androidx.compose.material3.NavigationBarItem</pre>
+                            <pre>import androidx.compose.material3.Scaffold</pre>
+                            <pre>import androidx.compose.material3.Text</pre>
+                            <pre>import androidx.compose.runtime.Composable</pre>
+                            <pre>import androidx.compose.runtime.collectAsState</pre>
+                            <pre>import androidx.compose.runtime.getValue</pre>
+                            <pre>import androidx.compose.ui.Modifier</pre>
+                            <pre>import androidx.compose.ui.tooling.preview.Preview</pre>
+                            <pre>import androidx.compose.ui.unit.dp</pre>
+                            <pre>import androidx.lifecycle.viewmodel.compose.viewModel</pre>
+                            <pre>import com.sakura.money_recorder.AppTopBar</pre>
+                            <pre>import com.sakura.money_recorder.AppViewModelProvider</pre>
+                            <pre>import com.sakura.money_recorder.MoneyRecordGroupItem</pre>
+                            <pre>import com.sakura.money_recorder.convertMillisToYearMonth</pre>
+                            <pre>import com.sakura.money_recorder.data.MoneyRecordGroup</pre>
+                            <pre>import com.sakura.money_recorder.data.categoryList</pre>
+                            <pre>import com.sakura.money_recorder.data.moneyRecordGroupListForTest</pre>
+                            <pre>import com.sakura.money_recorder.formatYen</pre>
+                            <pre>import com.sakura.money_recorder.getNowMillis</pre>
+                            <pre>import com.sakura.money_recorder.ui.navigation.NavigationDestination</pre>
+                            <pre><br></pre>
+                            <pre>object HomeScreenDestination : NavigationDestination {</pre>
+                            <pre>    override val route = "home"</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>@Composable</pre>
+                            <pre>fun HomeScreen(</pre>
+                            <pre>    viewModel: HomeScreenViewModel = viewModel(factory = AppViewModelProvider.Factory),</pre>
+                            <pre>    onAddRecordButtonClicked: () -&gt; Unit,</pre>
+                            <pre>) {</pre>
+                            <pre><span class="add">    val moneyRecordGroupMonthList by viewModel.moneyRecordGroupMonthList.collectAsState() </span></pre>
+                            <pre><br></pre>
+                            <pre>    HomeScreenBody(</pre>
+                            <pre>        selectedNavIndex = viewModel.selectedNavigationItem,</pre>
+                            <pre>        onNavigationItemSelected = { viewModel.updateSelectedNavigationItem(it) },</pre>
+                            <pre><br></pre>
+                            <pre><span class="add">        moneyRecordGroupList = moneyRecordGroupMonthList, </span></pre>
+                            <pre><br></pre>
+                            <pre>        onAddRecordButtonClicked = onAddRecordButtonClicked</pre>
+                            <pre>    )</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>@Composable</pre>
+                            <pre>private fun HomeScreenBody(</pre>
+                            <pre>    selectedNavIndex: Int = 0,</pre>
+                            <pre>    onNavigationItemSelected: (Int) -&gt; Unit = {},</pre>
+                            <pre><br></pre>
+                            <pre><span class="add">    moneyRecordGroupList: List&lt;MoneyRecordGroup&gt; = listOf(), </span></pre>
+                            <pre><br></pre>
+                            <pre>    onAddRecordButtonClicked: () -&gt; Unit = {},</pre>
+                            <pre>) {</pre>
+                            <pre>    Scaffold(</pre>
+                            <pre>        topBar = {</pre>
+                            <pre>            AppTopBar(titleText = "お小遣い帳")</pre>
+                            <pre>        },</pre>
+                            <pre>        bottomBar = {</pre>
+                            <pre>            val items = listOf("ホーム", "残高", "履歴") //下のナビゲーションバーの要素リスト</pre>
+                            <pre>            val icons = listOf(                       //アイコンリスト</pre>
+                            <pre>                Icons.Outlined.Home,</pre>
+                            <pre>                Icons.Outlined.CreditCard,</pre>
+                            <pre>                Icons.Outlined.History,</pre>
+                            <pre>            )</pre>
+                            <pre>            val selectedIcons = listOf(                //選択されたときのアイコンリスト</pre>
+                            <pre>                Icons.Filled.Home,</pre>
+                            <pre>                Icons.Filled.CreditCard,</pre>
+                            <pre>                Icons.Filled.History,</pre>
+                            <pre>            )</pre>
+                            <pre>            NavigationBar {</pre>
+                            <pre>                items.forEachIndexed { index, itemName -&gt;</pre>
+                            <pre>                    NavigationBarItem(</pre>
+                            <pre>                        icon = {</pre>
+                            <pre>                            Icon(</pre>
+                            <pre>                                imageVector = if (index == selectedNavIndex) selectedIcons[index] else icons[index],</pre>
+                            <pre>                                contentDescription = null</pre>
+                            <pre>                            )</pre>
+                            <pre>                        },</pre>
+                            <pre>                        label = { Text(text = itemName) },</pre>
+                            <pre>                        selected = index == selectedNavIndex,</pre>
+                            <pre>                        onClick = { onNavigationItemSelected(index) }</pre>
+                            <pre>                    )</pre>
+                            <pre>                }</pre>
+                            <pre>            }</pre>
+                            <pre>        },</pre>
+                            <pre>        floatingActionButton = {</pre>
+                            <pre>            FloatingActionButton(</pre>
+                            <pre>                onClick = onAddRecordButtonClicked</pre>
+                            <pre>            ) {</pre>
+                            <pre>                Icon(</pre>
+                            <pre>                    imageVector = Icons.Default.Add,</pre>
+                            <pre>                    contentDescription = null</pre>
+                            <pre>                )</pre>
+                            <pre>            }</pre>
+                            <pre>        },</pre>
+                            <pre>    ) { innerPadding -&gt; //戻り値をinnerPaddingに指定</pre>
+                            <pre>        Column(Modifier.padding(innerPadding)) {</pre>
+                            <pre>            if (selectedNavIndex == 0) { //ホーム</pre>
+                            <pre><br></pre>
+                            <pre>            }</pre>
+                            <pre>            else if (selectedNavIndex == 1) { //残高</pre>
+                            <pre>                Column(</pre>
+                            <pre>                    modifier = Modifier.padding(16.dp) //いい感じにスペーシング</pre>
+                            <pre>                ) {</pre>
+                            <pre>                    Text(text = " 総額 ")</pre>
+                            <pre>                    Row {</pre>
+                            <pre>                        Spacer(Modifier.weight(1f))</pre>
+                            <pre>                        Text(</pre>
+                            <pre><span class="add">                            text = formatYen(moneyRecordGroupList.sumOf { it.moneyRecordList.sumOf { moneyRecord -&gt; moneyRecord.amount } }),</span></pre>
+                            <pre>                            style = MaterialTheme.typography.headlineLarge</pre>
+                            <pre>                        )</pre>
+                            <pre>                    }</pre>
+                            <pre>                    HorizontalDivider(Modifier.padding(bottom = 16.dp))</pre>
+                            <pre><br></pre>
+                            <pre>                    //今月のGroupの取得</pre>
+                            <pre><span class="add">                    val moneyRecordGroupListNowMonth = moneyRecordGroupList.find {</span></pre>
+                            <pre>                        it.name == convertMillisToYearMonth(getNowMillis())</pre>
+                            <pre>                    }?.moneyRecordList //見つからなかった時ための"?." これはList?になる</pre>
+                            <pre><br></pre>
+                            <pre>                    //月別の収入支出</pre>
+                            <pre>                    Card(</pre>
+                            <pre>                        modifier = Modifier</pre>
+                            <pre>                            .fillMaxWidth()</pre>
+                            <pre>                    ) {</pre>
+                            <pre>                        Column(Modifier.padding(16.dp)) {</pre>
+                            <pre>                            Row {</pre>
+                            <pre>                                Text("月別の収入、支出")</pre>
+                            <pre>                            }</pre>
+                            <pre>                            Text(</pre>
+                            <pre>                                text = "今月：${convertMillisToYearMonth(getNowMillis())}",</pre>
+                            <pre>                                style = MaterialTheme.typography.headlineMedium</pre>
+                            <pre>                            )</pre>
+                            <pre>                            HorizontalDivider(Modifier.padding(bottom = 8.dp))</pre>
+                            <pre>                            Row {</pre>
+                            <pre>                                Spacer(Modifier.width(8.dp))</pre>
+                            <pre>                                Text("収入")</pre>
+                            <pre>                                Spacer(Modifier.weight(1f))</pre>
+                            <pre>                                Text(</pre>
+                            <pre>                                    text = formatYen(</pre>
+                            <pre>                                        moneyRecordGroupListNowMonth</pre>
+                            <pre>                                            ?.filter { it.amount &gt;= 0 }</pre>
+                            <pre>                                            ?.sumOf { it.amount } ?: 0, //もしListが見つからなかったら0となるように</pre>
+                            <pre>                                    ),</pre>
+                            <pre>                                )</pre>
+                            <pre>                            }</pre>
+                            <pre>                            Row {</pre>
+                            <pre>                                Spacer(Modifier.width(8.dp))</pre>
+                            <pre>                                Text("支出")</pre>
+                            <pre>                                Spacer(Modifier.weight(1f))</pre>
+                            <pre>                                Text(</pre>
+                            <pre>                                    text = formatYen(</pre>
+                            <pre>                                        moneyRecordGroupListNowMonth</pre>
+                            <pre>                                            ?.filter { it.amount &lt;= 0 }</pre>
+                            <pre>                                            ?.sumOf { it.amount } ?: 0,</pre>
+                            <pre>                                    ),</pre>
+                            <pre>                                )</pre>
+                            <pre>                            }</pre>
+                            <pre>                            Spacer(Modifier.height(8.dp))</pre>
+                            <pre>                            Row {</pre>
+                            <pre>                                Spacer(Modifier.width(8.dp))</pre>
+                            <pre>                                Text("総計")</pre>
+                            <pre>                                Spacer(Modifier.weight(1f))</pre>
+                            <pre>                                Text(</pre>
+                            <pre>                                    text = formatYen(</pre>
+                            <pre>                                        moneyRecordGroupListNowMonth?.sumOf { it.amount } ?: 0,</pre>
+                            <pre>                                    ),</pre>
+                            <pre>                                )</pre>
+                            <pre>                            }</pre>
+                            <pre>                        }</pre>
+                            <pre>                    }</pre>
+                            <pre><br></pre>
+                            <pre>                    //スペースをあける</pre>
+                            <pre>                    Spacer(Modifier.height(16.dp))</pre>
+                            <pre><br></pre>
+                            <pre>                    //カテゴリー別の収入支出</pre>
+                            <pre>                    Card(</pre>
+                            <pre>                        modifier = Modifier</pre>
+                            <pre>                            .fillMaxWidth()</pre>
+                            <pre>                            .clickable(</pre>
+                            <pre>                                onClick = {} //TODO</pre>
+                            <pre>                            )</pre>
+                            <pre>                    ) {</pre>
+                            <pre>                        Column(Modifier.padding(16.dp)) {</pre>
+                            <pre>                            Row {</pre>
+                            <pre>                                Text("カテゴリ別の収入、支出")</pre>
+                            <pre>                                Spacer(Modifier.weight(1f))</pre>
+                            <pre>                                Icon(</pre>
+                            <pre>                                    imageVector = Icons.Filled.ChevronRight,</pre>
+                            <pre>                                    contentDescription = null</pre>
+                            <pre>                                )</pre>
+                            <pre>                            }</pre>
+                            <pre>                            Text(</pre>
+                            <pre>                                text = "今月：${convertMillisToYearMonth(getNowMillis())}",</pre>
+                            <pre>                                style = MaterialTheme.typography.headlineMedium</pre>
+                            <pre>                            )</pre>
+                            <pre>                            HorizontalDivider(Modifier.padding(bottom = 8.dp))</pre>
+                            <pre>                            LazyColumn {</pre>
+                            <pre>                                items(</pre>
+                            <pre>                                    items = categoryList,</pre>
+                            <pre>                                    key = { it.name }</pre>
+                            <pre>                                ) { category -&gt;</pre>
+                            <pre>                                    Row {</pre>
+                            <pre>                                        Spacer(Modifier.width(8.dp))</pre>
+                            <pre>                                        Text(category.name)</pre>
+                            <pre>                                        Spacer(Modifier.weight(1f))</pre>
+                            <pre>                                        Text(</pre>
+                            <pre>                                            text = formatYen(</pre>
+                            <pre>                                                moneyRecordGroupListNowMonth</pre>
+                            <pre>                                                    ?.filter { it.category == category.name }</pre>
+                            <pre>                                                    ?.sumOf { it.amount } ?: 0,</pre>
+                            <pre>                                            ),</pre>
+                            <pre>                                        )</pre>
+                            <pre>                                    }</pre>
+                            <pre>                                }</pre>
+                            <pre>                            }</pre>
+                            <pre>                        }</pre>
+                            <pre>                    }</pre>
+                            <pre>                }</pre>
+                            <pre>            }</pre>
+                            <pre>            else if (selectedNavIndex == 2) { //履歴</pre>
+                            <pre>                LazyColumn { //可変のリストにはこのLazyColumnを使う</pre>
+                            <pre>                    items(</pre>
+                            <pre><span class="add">                        items = moneyRecordGroupList,</span></pre>
+                            <pre>                        key = { it.name } //これを指定することで処理軽減になる</pre>
+                            <pre>                    ) { group -&gt;</pre>
+                            <pre>                        MoneyRecordGroupItem(</pre>
+                            <pre>                            moneyRecordGroup = group,</pre>
+                            <pre>                            onClicked = {} //TODO</pre>
+                            <pre>                        )</pre>
+                            <pre>                    }</pre>
+                            <pre>                }</pre>
+                            <pre>            }</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>//Preview -----------------------------------------</pre>
+                            <pre><br></pre>
+                            <pre>@Preview</pre>
+                            <pre>@Composable</pre>
+                            <pre>fun PreviewHomeScreen() {</pre>
+                            <pre>    HomeScreenBody(</pre>
+                            <pre>        selectedNavIndex = 1,</pre>
+                            <pre><span class="add">        moneyRecordGroupList = moneyRecordGroupListForTest</span></pre>
+                            <pre>    )</pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            長くてすみません。主にしていることはまず、<span class="code">HomeScrenn()</span>内で<span class="code">moneyRecordGroupMonthList</span>を<span class="code">viewModel.collectAsState()</span>で受け取り、
+                            いままで<span class="code">moneyRecordGroupListForTest</span>で渡してプレビューしていたものと置き換えるというものです。<br>
+                            プレビューでは今まで通りプレビューしたいので、テスト用のものを渡しています。
+                        </p>
+                        <p>
+                            では次に、<span class="code">ViewModelProvider()</span>のほうでもリポジトリの引き渡しを設定していきましょう。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">AppViewModelProvider.kt</span><br>
+                            <pre>object AppViewModelProvider {</pre>
+                            <pre>    val Factory: ViewModelProvider.Factory = viewModelFactory {</pre>
+                            <pre>        initializer {</pre>
+                            <pre>            HomeScreenViewModel(</pre>
+                            <pre><span class="add">                moneyRecordRepository = moneyRecorderApplication().container.moneyRecordRepository</span></pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>        initializer {</pre>
+                            <pre>            InputMoneyRecordScreenViewModel()</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre><span class="add">    fun CreationExtras.moneyRecorderApplication(): MoneyRecorderApplication =</span></pre>
+                            <pre><span class="add">        (this[AndroidViewModelFactory.APPLICATION_KEY] as MoneyRecorderApplication)</span></pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            これでホーム画面のRoom導入は完了です。
+                        </p>
+                    </section>
+
+                    <section id="input">
+                        <h2>記録画面でデータベースを使えるようにする</h2>
+                        <p>
+                            では今度は、記録画面でデータベースを使えるようにしましょう。まずはViewModelからです。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">InputMoneyRecordScreenViewModel.kt</span><br>
+                            <pre>class InputMoneyRecordScreenViewModel(</pre>
+                            <pre><span class="add">    private val moneyRecordRepository: MoneyRecordRepository</span></pre>
+                            <pre>) : ViewModel() {</pre>
+                            <pre>    var moneyRecordUiState by mutableStateOf(MoneyRecordUiState()) //可変変数の定義</pre>
+                            <pre>        private set</pre>
+                            <pre><br></pre>
+                            <pre>    init { //初期化</pre>
+                            <pre>        moneyRecordUiState = MoneyRecordUiState(time = getNowMillis()) //時刻を現在時刻に設定</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre>    fun updateMoneyRecordUiState(newMoneyRecordUiState: MoneyRecordUiState) { //変更する際の関数</pre>
+                            <pre>        moneyRecordUiState = newMoneyRecordUiState</pre>
+                            <pre>    }</pre>
+                            <pre>    </pre>
+                            <pre>    </pre>
+                            <pre><span class="add">    suspend fun saveMoneyRecord() {</span></pre>
+                            <pre><span class="add">        moneyRecordRepository.insertItem(moneyRecordUiState.toMoneyRecord())</span></pre>
+                            <pre><span class="add">    }</span></pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            引数部分では先ほどと同じようにリポジトリを受け取ります。<br>
+                            また今回は初めて<span class="code">suspend</span>を使いました。
+                            データベースに保存することなどにはコルーチン内で行われる必要があります。
+                            そこで、コルーチン内でしか行われないようにするために<span class="code">suspend</span>がつけられるわけです。
+                        </p>
+                        <p>
+                            では今度は、<span class="code">InputMoneyRecordScreen.kt</span>のほうを書きましょう。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">Color.kt</span><br>
+                            <pre>@Composable</pre>
+                            <pre>fun InputMoneyRecordScreen(</pre>
+                            <pre>    viewModel: InputMoneyRecordScreenViewModel = viewModel(factory = AppViewModelProvider.Factory), </pre>
+                            <pre>    onBackButtonClicked: () -&gt; Unit,</pre>
+                            <pre>    ) {</pre>
+                            <pre><span class="add">    val coroutineScope = rememberCoroutineScope()</span></pre>
+                            <pre><br></pre>
+                            <pre>    InputMoneyRecordScreenBody(</pre>
+                            <pre>        uiState = viewModel.moneyRecordUiState, </pre>
+                            <pre>        onUiStateChanged = viewModel::updateMoneyRecordUiState,</pre>
+                            <pre><br></pre>
+                            <pre>        onBackButtonClicked = onBackButtonClicked,</pre>
+                            <pre><span class="add">        onSaveButtonClicked = {</span></pre>
+                            <pre><span class="add">            coroutineScope.launch {</span></pre>
+                            <pre><span class="add">                viewModel.saveMoneyRecord()</span></pre>
+                            <pre><span class="add">                onBackButtonClicked()</span></pre>
+                            <pre><span class="add">            }</span></pre>
+                            <pre><span class="add">        }</span></pre>
+                            <pre>    )</pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            まず、<span class="code">rememberCoroutineScope()</span>で<span class="code">coroutineScope</span>を宣言します。<br>
+                            そして、<span class="code">onSaveButtonClicked</span>の呼び出しでコルーチン内でViewModelの<span class="code">saveMOneyRecord()</span>が実行されます。
+                        </p>
+                        <p>
+                            最後に、忘れずまた<span class="code">ViewModelProvider</span>でViewModelにリポジトリを渡していきましょう。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">AppViewModelProvider.kt</span><br>
+                            <pre>object AppViewModelProvider {</pre>
+                            <pre>    val Factory: ViewModelProvider.Factory = viewModelFactory {</pre>
+                            <pre>        initializer {</pre>
+                            <pre>            HomeScreenViewModel(</pre>
+                            <pre>                moneyRecordRepository = moneyRecorderApplication().container.moneyRecordRepository</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>        initializer {</pre>
+                            <pre>            InputMoneyRecordScreenViewModel(</pre>
+                            <pre><span class="add">                moneyRecordRepository = moneyRecorderApplication().container.moneyRecordRepository</span></pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre>    fun CreationExtras.moneyRecorderApplication(): MoneyRecorderApplication =</pre>
+                            <pre>        (this[AndroidViewModelFactory.APPLICATION_KEY] as MoneyRecorderApplication)</pre>
+                            <pre>}</pre>
+                        </div>
+                    </section>
+
+                    <section id="test">
+                        <h2>実機テストとまとめ</h2>
+                        <div class="image_center_handy_flex">
+                            <img src="./img/05_01.png" alt="">
+                            <img src="./img/05_02.png" alt="">
+                            <img src="./img/05_03.png" alt="">
+                        </div>
+                        <p>
+                            記録画面に入力した情報を記録して、ホーム画面からアクセスできるようになりました。ようやくここまで来れましたね。
+                        </p>
+                        <p>
+                            また、いつもの実行ボタンの横のデバッグモードというモードで実機テストを開始し、下の動画の場所にある
+                        </p>
+                        <div class="image_center_small">
+                            <img src="./img/05_04.png" alt="" style="width: 50%; text-align: center;">
+                        </div>
+                        <p>
+                            App Inspectionを表示させると下のように
+                        </p>
+                        <div class="image_center_small">
+                            <img src="./img/05_05.png" alt="">
+                        </div>
+                        <p>
+                            実機の中のデータベースの中身を見ることができます。<br>
+                            ちゃんと保存はできていますね。
+                        </p>
+                        <p>
+                            次回は最終回としたいと思います。少し特殊なことをするといえば、画面遷移で情報を引き渡すことです。それ以外は、編集画面を作ることと、カテゴリー別一覧画面を作ることです。
+                            次回もよろしくお願いします。
+                        </p>
+                    </section>
+                </main>
+
+                <aside id="side_bar">
+                    <nav>
+                        <ul>
+                            <li><a href="../index.html">index.html</a></li>
+                        </ul>
+                    </nav>
+                    <p>お小遣い帳を作る</p>
+                    <nav>
+                        <ul>
+                            <li><a href="money_recorder_01.html">#01 プロジェクト作成</a></li>
+                            <li><a href="money_recorder_02.html">#02 ホーム画面作成編</a></li>
+                            <li><a href="money_recorder_03.html">#03 記録画面と画面遷移</a></li>
+                            <li><a href="money_recorder_04.html">#04 ViewModel作成編</a></li>
+                            <li>#05 今回</li>
+                        </ul>
+                    </nav>
+                    <div class="sticky">
+                       <p><a href="#index">今回の目次</a></p>
+                        <nav>
+                            <ul>
+                                <li><a href="#gradle">gradleファイルに付け足し</a></li>
+                                <li><a href="#manifest">manifestファイルの書き足し</a></li>
+                                <li><a href="#database">データベースの作成</a></li>
+                                <li><a href="#application">Application()の作成</a></li>
+                                <li><a href="#home">ホーム画面編</a></li>
+                                <li><a href="#input">記録画面編</a></li>
+                                <li><a href="#test">実機テストとまとめ</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </aside>
+            </div>
+
+            <footer>
+                <p></p>
+            </footer>
+        </div>
+    </body>
+</html>
