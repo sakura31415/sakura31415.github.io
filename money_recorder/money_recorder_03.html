@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="説明">
+
+        <title>Android Studioでお小遣い帳を作る#03 - 画面遷移</title>
+
+        <link rel="stylesheet" href="../css/style.css">
+
+        <!-- Google font -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&family=Noto+Sans+Mono:wght@100..900&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <div class="container">
+            <header id="header">
+                sakura ブログ
+            </header>
+
+            <div class="content">
+                <main id="main">
+                    <!-- タイトル -->
+                    <section class="title">
+                        <h1>
+                            Android Studioでお小遣い帳を作る #03 <br>
+                            記録画面と画面遷移編
+                        </h1>
+                        <p>2025/11/14 sakura</p>
+                    </section>
+
+                    <!-- 前書き -->
+                    <section class="">
+                        <h2>前書き</h2>
+                        <p>
+                            今回はお金の記録画面を作るのと同時に、画面遷移ができるようになるまで進めたいと思います。
+                        </p>
+                        <div class="image_center_handy_flex">
+                            <img src="./img/03_00.png">
+                        </div>
+                    </section>
+
+                    <!-- 目次 -->
+                    <section class="">
+                        <h2>目次</h2>
+                        <nav>
+                            <ul>
+                                <li><a href="#make_add_record">お金の記録画面を作成する</a></li>
+                                <li><a href="#gradle">gradleファイルに付け足し</a></li>
+                                <li><a href="#make_navigation_host">NavHostを作成する</a></li>
+                                <li><a href="#test">実機で検証</a></li>
+                                <li><a href="#conclusion">まとめ</a></li>
+                            </ul>
+                        </nav>
+                    </section>
+
+                    <section id="make_add_record">
+                        <h2>お金の記録画面を作成する</h2>
+                        <p>
+                            お金の記録画面を作っていきましょう。<br>
+                            <span class="code">screen</span>ディレクトリの下に新しく<span class="code">InputMoneyRecordScreen.kt</span>を作成してください。
+                        </p>
+                        <div class="image_center_small">
+                            <img src="./img/03_01.png" alt="">
+                        </div>
+                        <p>
+                            まず、これに書いていくのに使う関数を<span class="code">Components.kt</span>に書き足していきましょう。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">Components.kt</span><br>
+                            <pre>//日付選択ポップアップ</pre>
+                            <pre>@OptIn(ExperimentalMaterial3Api::class) //バージョン関連で必要</pre>
+                            <pre>@Composable</pre>
+                            <pre>fun DatePickerModal(</pre>
+                            <pre>    onDateSelected: (Long?) -> Unit, //時間Long?を返す関数</pre>
+                            <pre>    onDismiss: () -> Unit            //キャンセル時の関数</pre>
+                            <pre>) {</pre>
+                            <pre>    val datePickerState = rememberDatePickerState( //ポップアップの変数状態を保存する</pre>
+                            <pre>        initialSelectedDateMillis = System.currentTimeMillis() //初期値として現在時刻</pre>
+                            <pre>    )</pre>
+                            <pre><br></pre>
+                            <pre>    DatePickerDialog( //公式用意のポップアップ関数</pre>
+                            <pre>        onDismissRequest = onDismiss,</pre>
+                            <pre>        confirmButton = {</pre>
+                            <pre>            TextButton(onClick = {</pre>
+                            <pre>                onDateSelected(datePickerState.selectedDateMillis)</pre>
+                            <pre>                onDismiss()</pre>
+                            <pre>            }) {</pre>
+                            <pre>                Text("決定")</pre>
+                            <pre>            }</pre>
+                            <pre>        },</pre>
+                            <pre>        dismissButton = {</pre>
+                            <pre>            TextButton(onClick = onDismiss) {</pre>
+                            <pre>                Text("取り消し")</pre>
+                            <pre>            }</pre>
+                            <pre>        }</pre>
+                            <pre>    ) {</pre>
+                            <pre>        DatePicker(state = datePickerState)</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>//場面下横長ボタン</pre>
+                            <pre>@Composable</pre>
+                            <pre>fun ConfirmButton(</pre>
+                            <pre>    enabled: Boolean = true, //ボタンが押せるか</pre>
+                            <pre>    text: String,</pre>
+                            <pre>    onClicked: () -> Unit,</pre>
+                            <pre>) {</pre>
+                            <pre>    Button(</pre>
+                            <pre>        enabled = enabled,</pre>
+                            <pre>        onClick = onClicked,</pre>
+                            <pre>        modifier = Modifier</pre>
+                            <pre>            .padding()</pre>
+                            <pre>            .fillMaxWidth() //横長</pre>
+                            <pre>    ) {</pre>
+                            <pre>        Text(</pre>
+                            <pre>            text = text</pre>
+                            <pre>        )</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            <span class="code">DatePickerModal(){}</span>については日付選択ポップアップの関数です。<br>
+                            <span class="code">ConfirmButton(){}</span>については横長の確認ボタンなどのテンプレート関数です。何回も使うようなUIコンポーネントはこのように関数かするとよいと思います。
+                        </p>
+                        <p>
+                            次は、<span class="code">MoneyRecord</span>の<span class="code">UIState</span>というものを書いていこうと思います。<span class="code">MoneyRecord.kt</span>に書いていきましょう。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">MoneyRecord.kt</span><br>
+                            <pre>data class MoneyRecordUiState(</pre>
+                            <pre>    val id: Int = 0,</pre>
+                            <pre>    val time: Long = 0,</pre>
+                            <pre>    val amount: Int = 0, //正の数</pre>
+                            <pre>    val category: String = "その他",</pre>
+                            <pre>    val memo: String = "",</pre>
+                            <pre><br></pre>
+                            <pre>    val sign: Int = -1,</pre>
+                            <pre>    val input: String = ""</pre>
+                            <pre>)</pre>
+                            <pre><br></pre>
+                            <pre>//オブジェクト試行的関数(以下略)</pre>
+                            <pre>//MoneyRecordをMoneyRecordUiStateに変換する</pre>
+                            <pre>fun MoneyRecord.toMoneyRecordUiState(): MoneyRecordUiState = MoneyRecordUiState(</pre>
+                            <pre>    id = id,</pre>
+                            <pre>    time = time,</pre>
+                            <pre>    amount = if (amount > 0) amount else amount * -1,</pre>
+                            <pre>    category = category,</pre>
+                            <pre>    memo = memo,</pre>
+                            <pre>    sign = if (amount > 0) 1 else -1,</pre>
+                            <pre>    input = if (amount > 0) amount.toString() else (amount * -1).toString(),</pre>
+                            <pre>)</pre>
+                            <pre><br></pre>
+                            <pre>//MoneyRecordUiStateをMoneyRecordに変換する</pre>
+                            <pre>fun MoneyRecordUiState.toMoneyRecord(): MoneyRecord = MoneyRecord(</pre>
+                            <pre>    id = id,</pre>
+                            <pre>    time = time,</pre>
+                            <pre>    amount = input.toInt() * sign,</pre>
+                            <pre>    category = category,</pre>
+                            <pre>    memo = memo</pre>
+                            <pre>)</pre>
+                            <pre><br></pre>
+                            <pre>//MoneyRecordUiStateの入力が有効であるか返す</pre>
+                            <pre>fun MoneyRecordUiState.isValid(): Boolean {</pre>
+                            <pre>    val a = input.toIntOrNull()</pre>
+                            <pre>    return if (a != null) {</pre>
+                            <pre>        a > 0</pre>
+                            <pre>    } else {</pre>
+                            <pre>        false</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            <span class="code">MoneyRecordUiState</span>については使うときにより詳しく説明しようと思いますが、Roomで保存しない変数なども同じクラス内で管理したいのでこれを作ります。<br>
+                            <span class="code">.toMoneyRecordUiState()</span>については、前回で少し解説したオブジェクト指向的な関数です。<span class="code">MoneyRecord</span>を<span class="code">MoneyRecordUiState</span>に変換する関数です。
+                            <span class="code">.toMoneyRecord()</span>はその逆です。編集画面を作るときに使います。<br>
+                            <span class="code">.isValid()</span>は入力画面にて確認ボタンを押して次に進めるかどうかを判定するための関数です。
+                        </p>
+                        <p>
+                            そして、入力画面を書いていきましょう。以下のコードを<span class="code">InputMoneyRecordScreen.kt</span>に書いてください。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">InputMoneyRecordScreen.kt</span><br>
+                            <pre>import androidx.compose.foundation.clickable</pre>
+                            <pre>import androidx.compose.foundation.horizontalScroll</pre>
+                            <pre>import androidx.compose.foundation.layout.Column</pre>
+                            <pre>import androidx.compose.foundation.layout.Row</pre>
+                            <pre>import androidx.compose.foundation.layout.Spacer</pre>
+                            <pre>import androidx.compose.foundation.layout.fillMaxWidth</pre>
+                            <pre>import androidx.compose.foundation.layout.height</pre>
+                            <pre>import androidx.compose.foundation.layout.padding</pre>
+                            <pre>import androidx.compose.foundation.rememberScrollState</pre>
+                            <pre>import androidx.compose.foundation.text.KeyboardOptions</pre>
+                            <pre>import androidx.compose.material3.FilterChip</pre>
+                            <pre>import androidx.compose.material3.HorizontalDivider</pre>
+                            <pre>import androidx.compose.material3.Icon</pre>
+                            <pre>import androidx.compose.material3.OutlinedTextField</pre>
+                            <pre>import androidx.compose.material3.Scaffold</pre>
+                            <pre>import androidx.compose.material3.Switch</pre>
+                            <pre>import androidx.compose.material3.Text</pre>
+                            <pre>import androidx.compose.runtime.Composable</pre>
+                            <pre>import androidx.compose.runtime.getValue</pre>
+                            <pre>import androidx.compose.runtime.mutableStateOf</pre>
+                            <pre>import androidx.compose.runtime.remember</pre>
+                            <pre>import androidx.compose.runtime.setValue</pre>
+                            <pre>import androidx.compose.ui.Alignment</pre>
+                            <pre>import androidx.compose.ui.Modifier</pre>
+                            <pre>import androidx.compose.ui.text.input.KeyboardType</pre>
+                            <pre>import androidx.compose.ui.tooling.preview.Preview</pre>
+                            <pre>import androidx.compose.ui.unit.dp</pre>
+                            <pre>import com.sakura.money_recorder.AppTopBar</pre>
+                            <pre>import com.sakura.money_recorder.ConfirmButton</pre>
+                            <pre>import com.sakura.money_recorder.DatePickerModal</pre>
+                            <pre>import com.sakura.money_recorder.MoneyRecordItem</pre>
+                            <pre>import com.sakura.money_recorder.convertMillisToDate</pre>
+                            <pre>import com.sakura.money_recorder.data.MoneyRecordUiState</pre>
+                            <pre>import com.sakura.money_recorder.data.categoryList</pre>
+                            <pre>import com.sakura.money_recorder.data.isValid</pre>
+                            <pre>import com.sakura.money_recorder.data.toMoneyRecord</pre>
+                            <pre>import com.sakura.money_recorder.getNowMillis</pre>
+                            <pre><br></pre>
+                            <pre>@Composable</pre>
+                            <pre>fun InputMoneyRecordScreen(</pre>
+                            <pre><br></pre>
+                            <pre>) {</pre>
+                            <pre>    InputMoneyRecordScreenBody()</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>@Composable</pre>
+                            <pre>private fun InputMoneyRecordScreenBody(</pre>
+                            <pre>    uiState: MoneyRecordUiState = MoneyRecordUiState(),</pre>
+                            <pre>    onBackButtonClicked: () -> Unit = {}, //戻るボタンが押されたときの関数</pre>
+                            <pre>    onUiStateChanged: (MoneyRecordUiState) -> Unit = {}, //UiStateが変更されたときの関数</pre>
+                            <pre>    onSaveButtonClicked: () -> Unit = {} //記録ボタンが押されたときの関数</pre>
+                            <pre>) {</pre>
+                            <pre>    Scaffold(</pre>
+                            <pre>        topBar = {</pre>
+                            <pre>            AppTopBar(</pre>
+                            <pre>                titleText = "記録",</pre>
+                            <pre>                canBack = true,</pre>
+                            <pre>                onBackButtonClicked = onBackButtonClicked</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>    ) { innerPadding -></pre>
+                            <pre>        Column(Modifier.padding(innerPadding)) {</pre>
+                            <pre>            Column(</pre>
+                            <pre>                modifier = Modifier.padding(16.dp)</pre>
+                            <pre>            ) {</pre>
+                            <pre>                //編集画面を作るときも同じレイアウトを使用するため関数化</pre>
+                            <pre>                MoneyRecordInputField(</pre>
+                            <pre>                    uiState = uiState,</pre>
+                            <pre>                    onUiStateChanged = onUiStateChanged</pre>
+                            <pre>                )</pre>
+                            <pre><br></pre>
+                            <pre>                Spacer(Modifier.weight(1f))</pre>
+                            <pre><br></pre>
+                            <pre>                HorizontalDivider()</pre>
+                            <pre><br></pre>
+                            <pre>                //記入例を表示、MoneyRecordItemを活用</pre>
+                            <pre>                Column(Modifier.padding(vertical = 8.dp)) {</pre>
+                            <pre>                    Text("記録例：")</pre>
+                            <pre>                    if (uiState.isValid())</pre>
+                            <pre>                        MoneyRecordItem(uiState.toMoneyRecord(), onClicked = {})</pre>
+                            <pre>                    else</pre>
+                            <pre>                        Text("記録内容が正しくありません。")</pre>
+                            <pre>                }</pre>
+                            <pre><br></pre>
+                            <pre>                Spacer(Modifier.height(8.dp))</pre>
+                            <pre><br></pre>
+                            <pre>                //記録ボタン</pre>
+                            <pre>                ConfirmButton(</pre>
+                            <pre>                    enabled = uiState.isValid(),</pre>
+                            <pre>                    text = "記録",</pre>
+                            <pre>                    onClicked = onSaveButtonClicked</pre>
+                            <pre>                )</pre>
+                            <pre>            }</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>@Composable</pre>
+                            <pre>fun MoneyRecordInputField(</pre>
+                            <pre>    uiState: MoneyRecordUiState,</pre>
+                            <pre>    onUiStateChanged: (MoneyRecordUiState) -> Unit,</pre>
+                            <pre>) {</pre>
+                            <pre>    var datePickerOpened by remember { mutableStateOf(false) }</pre>
+                            <pre><br></pre>
+                            <pre>    //金額入力</pre>
+                            <pre>    OutlinedTextField(</pre>
+                            <pre>        value = uiState.input,</pre>
+                            <pre>        onValueChange = { onUiStateChanged(uiState.copy(input = it)) }, label = { Text("金額") },</pre>
+                            <pre>        singleLine = true,</pre>
+                            <pre>        keyboardOptions = KeyboardOptions.Default.copy(</pre>
+                            <pre>            keyboardType = KeyboardType.Number</pre>
+                            <pre>        ),</pre>
+                            <pre>        modifier = Modifier</pre>
+                            <pre>            .fillMaxWidth()</pre>
+                            <pre>            .padding(bottom = 8.dp)</pre>
+                            <pre>    )</pre>
+                            <pre><br></pre>
+                            <pre>    HorizontalDivider()</pre>
+                            <pre><br></pre>
+                            <pre>    //ボタンだけでなくフィールド全体でタップを感知</pre>
+                            <pre>    Column(</pre>
+                            <pre>        Modifier.clickable(</pre>
+                            <pre>            onClick = { onUiStateChanged(uiState.copy(sign = uiState.sign * -1)) }</pre>
+                            <pre>        )</pre>
+                            <pre>    ) {</pre>
+                            <pre>        Row(</pre>
+                            <pre>            modifier = Modifier</pre>
+                            <pre>                .fillMaxWidth()</pre>
+                            <pre>                .padding(vertical = 8.dp)</pre>
+                            <pre>                .height(50.dp),</pre>
+                            <pre>            verticalAlignment = Alignment.CenterVertically</pre>
+                            <pre>        ) {</pre>
+                            <pre>            Text(text = "マイナス/プラス")</pre>
+                            <pre>            Spacer(Modifier.weight(1f))</pre>
+                            <pre>            Switch( //収入か支出かをボタンで管理</pre>
+                            <pre>                checked = uiState.sign != -1,</pre>
+                            <pre>                onCheckedChange = { onUiStateChanged(uiState.copy(sign = uiState.sign * -1)) }</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre>    HorizontalDivider()</pre>
+                            <pre><br></pre>
+                            <pre><br></pre>
+                            <pre>    //日付入力</pre>
+                            <pre>    Column(</pre>
+                            <pre>        modifier = Modifier.clickable(</pre>
+                            <pre>            onClick = { datePickerOpened = true }</pre>
+                            <pre>        ),</pre>
+                            <pre>    ) {</pre>
+                            <pre>        Row(</pre>
+                            <pre>            modifier = Modifier</pre>
+                            <pre>                .fillMaxWidth()</pre>
+                            <pre>                .padding(vertical = 8.dp)</pre>
+                            <pre>                .height(50.dp),</pre>
+                            <pre>            verticalAlignment = Alignment.CenterVertically,</pre>
+                            <pre>        ) {</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "年月日：",</pre>
+                            <pre>            )</pre>
+                            <pre>            Spacer(modifier = Modifier.weight(1f))</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = convertMillisToDate(uiState.time),</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre>    HorizontalDivider()</pre>
+                            <pre><br></pre>
+                            <pre>    //カテゴリ選択</pre>
+                            <pre>    Column(</pre>
+                            <pre>        modifier = Modifier</pre>
+                            <pre>            .padding(vertical = 4.dp)</pre>
+                            <pre>    ) {</pre>
+                            <pre>        Text(text = "カテゴリ：")</pre>
+                            <pre>        Row(</pre>
+                            <pre>            modifier = Modifier.horizontalScroll(rememberScrollState())</pre>
+                            <pre>        ) {</pre>
+                            <pre>            categoryList.forEach { category -></pre>
+                            <pre>                FilterChip(</pre>
+                            <pre>                    onClick = {</pre>
+                            <pre>                        if (category.name == uiState.category) {</pre>
+                            <pre>                            onUiStateChanged(uiState.copy(category = "その他"))</pre>
+                            <pre>                        } else {</pre>
+                            <pre>                            onUiStateChanged(uiState.copy(category = category.name))</pre>
+                            <pre>                        }</pre>
+                            <pre>                    },</pre>
+                            <pre>                    selected = category.name == uiState.category,</pre>
+                            <pre>                    label = { Text(text = category.name) },</pre>
+                            <pre>                    leadingIcon = {</pre>
+                            <pre>                        Icon(</pre>
+                            <pre>                            imageVector = category.image,</pre>
+                            <pre>                            contentDescription = null</pre>
+                            <pre>                        )</pre>
+                            <pre>                    },</pre>
+                            <pre>                    modifier = Modifier</pre>
+                            <pre>                        .padding(horizontal = 2.dp)</pre>
+                            <pre>                )</pre>
+                            <pre>            }</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre>    HorizontalDivider()</pre>
+                            <pre><br></pre>
+                            <pre><br></pre>
+                            <pre>    //メモ欄</pre>
+                            <pre>    OutlinedTextField(</pre>
+                            <pre>        value = uiState.memo,</pre>
+                            <pre>        onValueChange = { onUiStateChanged(uiState.copy(memo = it)) },</pre>
+                            <pre>        label = { Text(text = "メモ") },</pre>
+                            <pre>        keyboardOptions = KeyboardOptions.Default.copy(</pre>
+                            <pre>            keyboardType = KeyboardType.Text</pre>
+                            <pre>        ),</pre>
+                            <pre>        modifier = Modifier</pre>
+                            <pre>            .padding(bottom = 8.dp)</pre>
+                            <pre>            .fillMaxWidth()</pre>
+                            <pre>    )</pre>
+                            <pre><br></pre>
+                            <pre>    HorizontalDivider()</pre>
+                            <pre><br></pre>
+                            <pre>    //日付選択ポップアップ ポップアップはどこでもよい(と思う)</pre>
+                            <pre>    if (datePickerOpened) {</pre>
+                            <pre>        DatePickerModal(</pre>
+                            <pre>            onDateSelected = {</pre>
+                            <pre>                onUiStateChanged(uiState.copy(time = it!!))</pre>
+                            <pre>            },</pre>
+                            <pre>            onDismiss = { datePickerOpened = false }</pre>
+                            <pre>        )</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>//Preview -----------------------------------------</pre>
+                            <pre><br></pre>
+                            <pre>@Preview</pre>
+                            <pre>@Composable</pre>
+                            <pre>private fun PreviewScreenInput(</pre>
+                            <pre>) {</pre>
+                            <pre>    InputMoneyRecordScreenBody(</pre>
+                            <pre>        uiState = MoneyRecordUiState(</pre>
+                            <pre>            time = getNowMillis(),</pre>
+                            <pre>            category = "食費",</pre>
+                            <pre>            memo = "コンビニ",</pre>
+                            <pre>            sign = -1,</pre>
+                            <pre>            input = "100"</pre>
+                            <pre>        )</pre>
+                            <pre>    )</pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            <span class="code">HomeScreen.kt</span>の時のように<span class="code">Body</span>関数に分けて作ってます。これものちの<span class="code">ViewModel</span>のためです。<br>
+                            また、入力欄を<span class="code">MoneyRecordInputField()</span>という関数を作り、それを<span class="code">Body</span>関数に組み込んでいます。これは編集画面を作るときにまた同じものを使うので関数化しています。
+                        </p>
+                        <p>
+                            <span class="code">MoneyRecordUiState()</span>の解説をここでしようと思います。<br>
+                            <span class="code">MoneyRecord()</span>との違いは<span class="code">sign</span>という整数変数と<span class="code">input</span>という文字列変数があることです。
+                            <span class="code">sign</span>は字の通り符号で、プラスかマイナスのどちらかをトグルで決めるためのものです。
+                            <span class="code">input</span>は<span class="code">TextField()</span>のためのものです。
+                            <span class="code">TextField()</span>にそのまま整数変数を入れると入力に数字以外が入る可能性でクラッシュする可能性があるため、まず文字列で保存しておき、<span class="code">.isValid()</span>でそれが数字かどうか判定して確実に数字として保存できるようにしています。
+                        </p>
+                        <p>
+                            一度プレビューを見てみましょう。
+                        </p>
+                        <div class="image_center_handy_flex">
+                            <img src="./img/03_02.png">
+                        </div>
+                        <p>
+                            このようにAndroid Studioではもとに用意されているUiを使うだけでそれっぽいものを作ることができます。今回は新しく、<span class="code">OutlinedTextField()</span>や<span class="code">Switch()</span>、<span class="code">FilterChip()</span>などを使いました。
+                            下のサイトにそのほかの用意されたボタンなどのUiが書いてあるので、自分で何かカスタマイズしたい際などにはご覧ください。
+                        </p>
+                        <nav>
+                            <a href="https://developer.android.com/develop/ui/compose/components?hl=ja" target="_blank">マテリアル コンポーネント - https://developer.android.com/develop/ui/compose/components?hl=ja</a>
+                        </nav>
+                        <p>
+                            次は、画面遷移ができるようにしましょう。
+                        </p>
+                    </section>
+
+                    <section id="gradle">
+                        <h2>gradleファイルに付け足し</h2>
+                        <p>
+                            画面遷移には<span class="code">Navigation</span>を使用しなければいけません。そのためにまず、gradleファイルの<span class="code">dependencies</span>にまた追加する必要があります。
+                            アイコンを追加したときのものの下に以下をコピペして、同期してください。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">build.gradle.kts (Module :app)</span><br>
+                            <pre>dependencies {</pre>
+                            <pre><br></pre>
+                            <pre>    省略</pre>
+                            <pre><br></pre>
+                            <pre>    //Navigation</pre>
+                            <pre>    implementation("androidx.navigation:navigation-compose:2.9.6")</pre>
+                            <pre>}    </pre>
+                        </div>
+                    </section>
+
+                    <section id="make_navigation_host">
+                        <h2>NavHostを作成する</h2>
+                        <p>
+                            まず、以下のように<span class="code">com.___.money_recorder</span>の下に<span class="code">ui>navigation>NavGraph.kt</span>を作成しましょう。
+                        </p>
+                        <div class="image_center_small">
+                            <img src="./img/03_03.png" alt="">
+                        </div>
+                        <p>
+                            まず、<span class="code">interface{}</span>というものを作りましょう。これでしか出てこないため、正直私もなにのことかはわかりません。画面の転移先の名前をクラスのように管理するために使っています。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">NavGraph.kt</span><br>
+                            <pre>interface NavigationDestination {</pre>
+                            <pre>    val route: String</pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            そして<span class="code">HomeScreen.kt</span>と<span class="code">InputMoneyRecordScreen.kt</span>に以下のように書き加えてください。importの次ぐらいに書くとわかりやすいです。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">HomeScreen.kt</span><br>
+                            <pre>object HomeScreenDestination : NavigationDestination {</pre>
+                            <pre>    override val route = "home"</pre>
+                            <pre>}</pre>
+                        </div>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">InputMoneyRecordScreen.kt</span><br>
+                            <pre>object InputMoneyRecordScreenDestination : NavigationDestination {</pre>
+                            <pre>    override val route = "input_money_record"</pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            そしてまた、<span class="code">NavGraph.kt</span>に戻って以下のコードを書いてください。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">NavGraph.kt</span><br>
+                            <pre>@Composable</pre>
+                            <pre>fun MoneyRecorderNavHost(</pre>
+                            <pre>    navController: NavHostController,</pre>
+                            <pre>){</pre>
+                            <pre>    NavHost(</pre>
+                            <pre>        navController = navController,</pre>
+                            <pre>        startDestination = HomeScreenDestination.route</pre>
+                            <pre>    ) {</pre>
+                            <pre>        composable(route = HomeScreenDestination.route) { //ホーム画面</pre>
+                            <pre>            HomeScreen()</pre>
+                            <pre>        }</pre>
+                            <pre>        composable(route = InputMoneyRecordScreenDestination.route) { //記録画面</pre>
+                            <pre>            InputMoneyRecordScreen()</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            これで画面遷移のシステム自体ができました。<span class="code">HomeScreen.kt</span>、<span class="code">InputMoneyRecordScreen.kt</span>に画面遷移のための関数を代入してあげましょう。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">HomeScreen.kt</span><br>
+                            <pre>@Composable</pre>
+                            <pre>fun HomeScreen(</pre>
+                            <pre>    onAddRecordButtonClicked: () -> Unit, //追加</pre>
+                            <pre>) {</pre>
+                            <pre>    HomeScreenBody(</pre>
+                            <pre>        onAddRecordButtonClicked = onAddRecordButtonClicked //追加</pre>
+                            <pre>    )</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>@Composable</pre>
+                            <pre>private fun HomeScreenBody(</pre>
+                            <pre>    selectedNavIndex: Int = 0,</pre>
+                            <pre>    onAddRecordButtonClicked: () -> Unit = {}, //追加</pre>
+                            <pre>) {</pre>
+                            <pre>    Scaffold(</pre>
+                            <pre>        省略</pre>
+                            <pre>        floatingActionButton = {</pre>
+                            <pre>            FloatingActionButton(</pre>
+                            <pre>                onClick = onAddRecordButtonClicked //追加</pre>
+                            <pre>            ) {}</pre>
+                            <pre>        },</pre>
+                            <pre>    ){}</pre>
+                            <pre>}</pre>
+                        </div>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">InputMoneyRecordScreen.kt</span><br>
+                            <pre>@Composable</pre>
+                            <pre>fun InputMoneyRecordScreen(</pre>
+                            <pre>    onBackButtonClicked: () -> Unit, //追加</pre>
+                            <pre>) {</pre>
+                            <pre>    InputMoneyRecordScreenBody(</pre>
+                            <pre>        onBackButtonClicked = onBackButtonClicked //追加</pre>
+                            <pre>    )</pre>
+                            <pre>}</pre>
+                        </div>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">NavGraph.kt</span><br>
+                            <pre>@Composable</pre>
+                            <pre>fun MoneyRecorderNavHost(</pre>
+                            <pre>    navController: NavHostController,</pre>
+                            <pre>){</pre>
+                            <pre>    NavHost(</pre>
+                            <pre>        navController = navController,</pre>
+                            <pre>        startDestination = HomeScreenDestination.route</pre>
+                            <pre>    ) {</pre>
+                            <pre>        composable(route = HomeScreenDestination.route) { //ホーム画面</pre>
+                            <pre>            HomeScreen(</pre>
+                            <pre>                onAddRecordButtonClicked = { //追加</pre>
+                            <pre>                    navController.navigate(InputMoneyRecordScreenDestination.route)</pre>
+                            <pre>                }</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>        composable(route = InputMoneyRecordScreenDestination.route) { //記録画面</pre>
+                            <pre>            InputMoneyRecordScreen(</pre>
+                            <pre>                onBackButtonClicked = { //追加</pre>
+                            <pre>                    navController.navigateUp()</pre>
+                            <pre>                }</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            <span class="code">HomeScreen()</span>などでは画面遷移の処理は書かず、画面遷移はすべて<span class="code">NavGraph.kt</span>の中で書きます。
+                            このようにAndroid StudioではUIはUI、データはデータ、画面遷移は画面遷移でとファイルごとで処理を分けることが大切だそうです。<br>
+                            また、<span class="code">navController.naviateUp()</span>は戻る処理のことです。Androidの戻る処理は書く必要がなく、ボタンでその機能を実装したい場合はこの関数を使いましょう。
+                        </p>
+                    </section>
+
+                    <section id="test">
+                        <h2>実機で検証</h2>
+                        <p>
+                            今度は、実際にエミュレータや実機で動作するか確認してみましょう。まず、<span class="code">MainActivity.kt</span>にコードを追加していきましょう。
+                        </p>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">MainActivity.kt</span><br>
+                            <pre>class MainActivity : ComponentActivity() {</pre>
+                            <pre>    override fun onCreate(savedInstanceState: Bundle?) {</pre>
+                            <pre>        super.onCreate(savedInstanceState)</pre>
+                            <pre>        enableEdgeToEdge()</pre>
+                            <pre>        setContent {</pre>
+                            <pre>            MoneyRecorderTheme {</pre>
+                            <pre>                MoneyRecorderApp()</pre>
+                            <pre>            }</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>@Composable</pre>
+                            <pre>fun MoneyRecorderApp(</pre>
+                            <pre>    navController: NavHostController = rememberNavController()</pre>
+                            <pre>){</pre>
+                            <pre>    MoneyRecorderNavHost(</pre>
+                            <pre>        navController = navController</pre>
+                            <pre>    )</pre>
+                            <pre>}</pre>
+                        </div>
+                        <p>
+                            実は、<span class="code">MainActivity.kt</span>はこれにて完成でございます。<br>
+                            <span class="code">MoneyRecorderTheme{}</span>のなかにコンポーザブル関数を書くことで書いたものは第一回で書いた<span class="code">Theme</span>が適用され、いい感じになります。<br>
+                            また、<span class="code">MoneyRecorderApp()</span>を作り、引数内で<span class="code">rememberNavController()</span>で宣言した<span class="code">navController</span>にてスマホ画面の制御しています。
+                        </p>
+                        <p>
+                            では、実際に動かしてみましょう。私は実機をUSBでつないで実行することをお勧めしますが、Android Studioではエミュレータで動かすこともできます。
+                            今回は実機で動かしてみようと思います。スマホのほうの開発者モード的なのにしなければいけませんが頑張ってください。
+                        </p>
+                        <div class="image_center">
+                            <img src="./img/03_04.png">
+                        </div>
+                        <p>
+                            しばらく待つと、次のようにアプリが起動すると思います。
+                        </p>
+                        <div class="image_center_handy_flex">
+                            <img src="./img/03_05.png" alt="">
+                            <img src="./img/03_06.png" alt="">
+                        </div>
+                        <p>
+                            追加ボタンを押すと記録画面に遷移し、戻るボタンや戻るをしたらホーム画面に戻ることが確認できると思います。<br>
+                            しかし、残高画面に行けなかったり、記録画面で金額の入力ができなかったりとまだ使える状態ではないので、次回でさらに進めていきましょう。
+                        </p>
+                    </section>
+
+                    <section id="conclusion">
+                        <h2>まとめ</h2>
+                        <p>
+                            今回は記録画面を作り、<span class="code">Navigation</span>で画面遷移のシステムの基礎を作りました。<br>
+                            次回は<span class="code">ViewModel</span>を導入し、状態を保存して、残高画面に行けるようになったり、記録を入力することができるようにするとこまでしたいと思います。
+                        </p>
+                    </section>
+                </main>
+
+                <aside id="side_bar">
+                    <nav>
+                        <ul>
+                            <li><a href="../index.html">index.html</a></li>
+                        </ul>
+                    </nav>
+                    <p>お小遣い帳を作る</p>
+                    <nav>
+                        <ul>
+                            <li><a href="money_recorder_01.html">#01 プロジェクト作成</a></li>
+                            <li><a href="money_recorder_02.html">#02 ホーム画面作成編</a></li>
+                            <li>#03 今回</li>
+                            <li><a href="money_recorder_04.html">#04 ViewModel作成編</a></li>
+                        </ul>
+                    </nav>
+                    <div class="sticky">
+                       <p>今回のもくじ</p>
+                        <nav>
+                            <ul>
+                                <li><a href="#make_add_record">お金の記録画面を作成する</a></li>
+                                <li><a href="#gradle">gradleファイルに付け足し</a></li>
+                                <li><a href="#make_navigation_host">NavHostを作成する</a></li>
+                                <li><a href="#test">実機で検証</a></li>
+                                <li><a href="#conclusion">まとめ</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </aside>
+            </div>
+
+            <footer>
+                <p></p>
+            </footer>
+        </div>
+    </body>
+</html>
