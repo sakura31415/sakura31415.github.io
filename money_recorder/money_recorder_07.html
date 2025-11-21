@@ -1,0 +1,2506 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Android Studioでお小遣い帳を作る実践チュートリアルです。自分なりのアプリ開発の進め方を紹介しています。">
+
+        <title>Android Studioでお小遣い帳を作る#07 - 全コード</title>
+
+        <link rel="stylesheet" href="../css/style.css">
+
+        <!-- Google font -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&family=Noto+Sans+Mono:wght@100..900&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <div class="container">
+            <header id="header">
+                sakura ブログ
+            </header>
+
+            <div class="content">
+                <main id="main">
+                    <!-- タイトル -->
+                    <section class="title">
+                        <h1>
+                            Android Studioでお小遣い帳を作る #07 <br>
+                            全コード
+                        </h1>
+                        <p>2025/11/21 sakura</p>
+                    </section>
+
+                    <!-- 目次 -->
+                    <section id="index">
+                        <h2>目次</h2>
+                        <nav>
+                            <ul>
+                                <li><a href="#01">全ファイル構成</a></li>
+                                <li><a href="#02">gradleファイル</a></li>
+                                <li><a href="#03">./data</a></li>
+                                <li><a href="#04">./ui/navigation</a></li>
+                                <li><a href="#05">./ui/screen</a></li>
+                                <li><a href="#06">./ui/theme</a></li>
+                                <li><a href="#07">./</a></li>
+                                <li><a href="#08">manifest</a></li>
+                            </ul>
+                        </nav>
+                    </section>
+
+                    <section>
+                        <h2 id="01">
+                            全ファイル構成
+                        </h2>
+                        <div class="image_center_small">
+                            <img src="./img/07_00.png" alt="">
+                        </div>
+
+                        <h2 id="02">
+                            gradleファイル
+                        </h2>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">build.gradle.kts (Project: MoneyRecorder)</span><br>
+                            <pre>// Top-level build file where you can add configuration options common to all sub-projects/modules.</pre>
+                            <pre>plugins {</pre>
+                            <pre>    alias(libs.plugins.android.application) apply false</pre>
+                            <pre>    alias(libs.plugins.kotlin.android) apply false</pre>
+                            <pre>    alias(libs.plugins.kotlin.compose) apply false</pre>
+                            <pre><br></pre>
+                            <pre>    id("com.google.devtools.ksp") version "2.1.20-2.0.0" apply false //&lt;-追加</pre>
+                            <pre>}</pre>
+                        </div>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">build.gradle.kts (Module: app)</span><br>
+                            <pre>plugins {</pre>
+                            <pre>    alias(libs.plugins.android.application)</pre>
+                            <pre>    alias(libs.plugins.kotlin.android)</pre>
+                            <pre>    alias(libs.plugins.kotlin.compose)</pre>
+                            <pre><br></pre>
+                            <pre><span class="add">    id("com.google.devtools.ksp") //追加</span></pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>android {</pre>
+                            <pre>    namespace = "com.sakura.money_recorder"</pre>
+                            <pre>    compileSdk = 36</pre>
+                            <pre><br></pre>
+                            <pre>    defaultConfig {</pre>
+                            <pre>        applicationId = "com.sakura.money_recorder"</pre>
+                            <pre>        minSdk = 24</pre>
+                            <pre>        targetSdk = 36</pre>
+                            <pre>        versionCode = 1</pre>
+                            <pre>        versionName = "1.0"</pre>
+                            <pre><br></pre>
+                            <pre>        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre>    buildTypes {</pre>
+                            <pre>        release {</pre>
+                            <pre>            isMinifyEnabled = false</pre>
+                            <pre>            proguardFiles(</pre>
+                            <pre>                getDefaultProguardFile("proguard-android-optimize.txt"),</pre>
+                            <pre>                "proguard-rules.pro"</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>    compileOptions {</pre>
+                            <pre>        sourceCompatibility = JavaVersion.VERSION_11</pre>
+                            <pre>        targetCompatibility = JavaVersion.VERSION_11</pre>
+                            <pre>    }</pre>
+                            <pre>    kotlinOptions {</pre>
+                            <pre>        jvmTarget = "11"</pre>
+                            <pre>    }</pre>
+                            <pre>    buildFeatures {</pre>
+                            <pre>        compose = true</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>dependencies {</pre>
+                            <pre><br></pre>
+                            <pre>    implementation(libs.androidx.core.ktx)</pre>
+                            <pre>    implementation(libs.androidx.lifecycle.runtime.ktx)</pre>
+                            <pre>    implementation(libs.androidx.activity.compose)</pre>
+                            <pre>    implementation(platform(libs.androidx.compose.bom))</pre>
+                            <pre>    implementation(libs.androidx.ui)</pre>
+                            <pre>    implementation(libs.androidx.ui.graphics)</pre>
+                            <pre>    implementation(libs.androidx.ui.tooling.preview)</pre>
+                            <pre>    implementation(libs.androidx.material3)</pre>
+                            <pre>    testImplementation(libs.junit)</pre>
+                            <pre>    androidTestImplementation(libs.androidx.junit)</pre>
+                            <pre>    androidTestImplementation(libs.androidx.espresso.core)</pre>
+                            <pre>    androidTestImplementation(platform(libs.androidx.compose.bom))</pre>
+                            <pre>    androidTestImplementation(libs.androidx.ui.test.junit4)</pre>
+                            <pre>    debugImplementation(libs.androidx.ui.tooling)</pre>
+                            <pre>    debugImplementation(libs.androidx.ui.test.manifest)</pre>
+                            <pre><br></pre>
+                            <pre>    //Icon</pre>
+                            <pre>    implementation("androidx.compose.material:material-icons-extended")</pre>
+                            <pre><br></pre>
+                            <pre>    //Navigation</pre>
+                            <pre>    implementation("androidx.navigation:navigation-compose:2.9.6")</pre>
+                            <pre><br></pre>
+                            <pre>    //ViewModel</pre>
+                            <pre>    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.4")</pre>
+                            <pre><br></pre>
+                            <pre>    //Room</pre>
+                            <pre>    implementation("androidx.room:room-runtime:2.8.3")</pre>
+                            <pre>    implementation("androidx.room:room-ktx:2.8.3")</pre>
+                            <pre>    ksp("androidx.room:room-compiler:2.8.3")</pre>
+                            <pre>}</pre>
+                        </div>
+
+                        <h2>
+                            本体ファイル
+                        </h2>
+
+                        <h3 id="03">
+                            ./data
+                        </h3>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">Category.kt</span><br>
+                            <pre>package com.sakura.money_recorder.data</pre>
+                            <pre><br></pre>
+                            <pre>import androidx.compose.material.icons.Icons</pre>
+                            <pre>import androidx.compose.material.icons.filled.Coffee</pre>
+                            <pre>import androidx.compose.material.icons.filled.EmojiTransportation</pre>
+                            <pre>import androidx.compose.material.icons.filled.Fastfood</pre>
+                            <pre>import androidx.compose.material.icons.filled.FitnessCenter</pre>
+                            <pre>import androidx.compose.material.icons.filled.Home</pre>
+                            <pre>import androidx.compose.material.icons.filled.Interests</pre>
+                            <pre>import androidx.compose.material.icons.filled.MoreVert</pre>
+                            <pre>import androidx.compose.ui.graphics.vector.ImageVector</pre>
+                            <pre><br></pre>
+                            <pre>data class Category(</pre>
+                            <pre>    val name: String,</pre>
+                            <pre>    val image: ImageVector</pre>
+                            <pre>)</pre>
+                            <pre><br></pre>
+                            <pre>val categoryList = listOf(</pre>
+                            <pre>    Category("食費", Icons.Filled.Fastfood),</pre>
+                            <pre>    Category("交通費", Icons.Filled.EmojiTransportation),</pre>
+                            <pre>    Category("家", Icons.Filled.Home),</pre>
+                            <pre>    Category("日用品", Icons.Filled.Interests),</pre>
+                            <pre>    Category("娯楽", Icons.Filled.Coffee),</pre>
+                            <pre>    Category("部活", Icons.Filled.FitnessCenter),</pre>
+                            <pre>    Category("その他", Icons.Filled.MoreVert),</pre>
+                            <pre>)</pre>
+                        </div>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">MoneyRecord.kt</span><br>
+                            <pre>package com.sakura.money_recorder.data</pre>
+                            <pre><br></pre>
+                            <pre>import android.content.Context</pre>
+                            <pre>import androidx.room.Dao</pre>
+                            <pre>import androidx.room.Database</pre>
+                            <pre>import androidx.room.Delete</pre>
+                            <pre>import androidx.room.Entity</pre>
+                            <pre>import androidx.room.Insert</pre>
+                            <pre>import androidx.room.OnConflictStrategy</pre>
+                            <pre>import androidx.room.PrimaryKey</pre>
+                            <pre>import androidx.room.Query</pre>
+                            <pre>import androidx.room.Room</pre>
+                            <pre>import androidx.room.RoomDatabase</pre>
+                            <pre>import androidx.room.Update</pre>
+                            <pre>import kotlinx.coroutines.flow.Flow</pre>
+                            <pre><br></pre>
+                            <pre>@Entity(tableName = "money_records")</pre>
+                            <pre>data class MoneyRecord(</pre>
+                            <pre>    @PrimaryKey(autoGenerate = true)</pre>
+                            <pre>    val id: Int = 0,</pre>
+                            <pre>    val time: Long, //日時記録</pre>
+                            <pre>    val amount: Int, //金額</pre>
+                            <pre>    val category: String = "その他", //カテゴリー</pre>
+                            <pre>    val memo: String = "" //メモ</pre>
+                            <pre>)</pre>
+                            <pre><br></pre>
+                            <pre>data class MoneyRecordGroup( //月ごとのリストのデータ</pre>
+                            <pre>    val name: String,</pre>
+                            <pre>    val moneyRecordList: List&lt;MoneyRecord&gt;</pre>
+                            <pre>)</pre>
+                            <pre><br></pre>
+                            <pre>data class MoneyRecordUiState(</pre>
+                            <pre>    val id: Int = 0,</pre>
+                            <pre>    val time: Long = 0,</pre>
+                            <pre>    val amount: Int = 0, //正の数</pre>
+                            <pre>    val category: String = "その他",</pre>
+                            <pre>    val memo: String = "",</pre>
+                            <pre><br></pre>
+                            <pre>    val sign: Int = -1,</pre>
+                            <pre>    val input: String = ""</pre>
+                            <pre>)</pre>
+                            <pre><br></pre>
+                            <pre>//オブジェクト試行的関数(以下略)</pre>
+                            <pre>//MoneyRecordをMoneyRecordUiStateに変換する</pre>
+                            <pre>fun MoneyRecord.toMoneyRecordUiState(): MoneyRecordUiState = MoneyRecordUiState(</pre>
+                            <pre>    id = id,</pre>
+                            <pre>    time = time,</pre>
+                            <pre>    amount = if (amount &gt; 0) amount else amount * -1,</pre>
+                            <pre>    category = category,</pre>
+                            <pre>    memo = memo,</pre>
+                            <pre>    sign = if (amount &gt; 0) 1 else -1,</pre>
+                            <pre>    input = if (amount &gt; 0) amount.toString() else (amount * -1).toString(),</pre>
+                            <pre>)</pre>
+                            <pre><br></pre>
+                            <pre>//MoneyRecordUiStateをMoneyRecordに変換する</pre>
+                            <pre>fun MoneyRecordUiState.toMoneyRecord(): MoneyRecord = MoneyRecord(</pre>
+                            <pre>    id = id,</pre>
+                            <pre>    time = time,</pre>
+                            <pre>    amount = input.toInt() * sign,</pre>
+                            <pre>    category = category,</pre>
+                            <pre>    memo = memo</pre>
+                            <pre>)</pre>
+                            <pre><br></pre>
+                            <pre>//MoneyRecordUiStateの入力が有効であるか返す</pre>
+                            <pre>fun MoneyRecordUiState.isValid(): Boolean {</pre>
+                            <pre>    val a = input.toIntOrNull()</pre>
+                            <pre>    return if (a != null) {</pre>
+                            <pre>        a &gt; 0</pre>
+                            <pre>    } else {</pre>
+                            <pre>        false</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>val moneyRecordGroupListForTest = listOf&lt;MoneyRecordGroup&gt;(</pre>
+                            <pre>    MoneyRecordGroup(</pre>
+                            <pre>        name = "2025年11月",</pre>
+                            <pre>        moneyRecordList = listOf&lt;MoneyRecord&gt;(</pre>
+                            <pre>            MoneyRecord(</pre>
+                            <pre>                id = 5,</pre>
+                            <pre>                time = 1762083602,</pre>
+                            <pre>                amount = -2400,</pre>
+                            <pre>                category = "食費",</pre>
+                            <pre>                memo = "スーパー"</pre>
+                            <pre>            ),</pre>
+                            <pre>            MoneyRecord(</pre>
+                            <pre>                id = 4,</pre>
+                            <pre>                time = 1762083600,</pre>
+                            <pre>                amount = 60000,</pre>
+                            <pre>                category = "その他",</pre>
+                            <pre>                memo = "バイト代"</pre>
+                            <pre>            ),</pre>
+                            <pre>            MoneyRecord(</pre>
+                            <pre>                id = 3,</pre>
+                            <pre>                time = 1761997204,</pre>
+                            <pre>                amount = -1977,</pre>
+                            <pre>                category = "家",</pre>
+                            <pre>                memo = "電気代"</pre>
+                            <pre>            ),</pre>
+                            <pre>            MoneyRecord(</pre>
+                            <pre>                id = 2,</pre>
+                            <pre>                time = 1761997202,</pre>
+                            <pre>                amount = -1000,</pre>
+                            <pre>                category = "娯楽",</pre>
+                            <pre>                memo = "カラオケ"</pre>
+                            <pre>            ),</pre>
+                            <pre>            MoneyRecord(</pre>
+                            <pre>                id = 1,</pre>
+                            <pre>                time = 1761997200,</pre>
+                            <pre>                amount = -150,</pre>
+                            <pre>                category = "食費",</pre>
+                            <pre>                memo = "コンビニ"</pre>
+                            <pre>            ),</pre>
+                            <pre>        )</pre>
+                            <pre>    ),</pre>
+                            <pre>    MoneyRecordGroup(</pre>
+                            <pre>        name = "2025年10月",</pre>
+                            <pre>        moneyRecordList = listOf&lt;MoneyRecord&gt;(</pre>
+                            <pre>            MoneyRecord(</pre>
+                            <pre>                id = 0,</pre>
+                            <pre>                time = 1761910801,</pre>
+                            <pre>                amount = 100000,</pre>
+                            <pre>                category = "その他",</pre>
+                            <pre>                memo = "初期設定"</pre>
+                            <pre>            )</pre>
+                            <pre>        )</pre>
+                            <pre>    )</pre>
+                            <pre>)</pre>
+                            <pre><br></pre>
+                            <pre>//Dao ----------------------------------------------------------------------------------------------</pre>
+                            <pre>@Dao</pre>
+                            <pre>interface MoneyRecordDao {</pre>
+                            <pre>    @Query("SELECT * from money_records ORDER BY time DESC, id DESC")</pre>
+                            <pre>    fun getAllItems(): Flow&lt;List&lt;MoneyRecord&gt;&gt;</pre>
+                            <pre><br></pre>
+                            <pre>    @Query("SELECT * from money_records WHERE id = :id")</pre>
+                            <pre>    fun getItem(id: Int): Flow&lt;MoneyRecord&gt;</pre>
+                            <pre><br></pre>
+                            <pre><br></pre>
+                            <pre>    @Insert(onConflict = OnConflictStrategy.Companion.IGNORE)</pre>
+                            <pre>    suspend fun insert(item: MoneyRecord)</pre>
+                            <pre><br></pre>
+                            <pre>    @Update</pre>
+                            <pre>    suspend fun update(item: MoneyRecord)</pre>
+                            <pre><br></pre>
+                            <pre>    @Delete</pre>
+                            <pre>    suspend fun delete(item: MoneyRecord)</pre>
+                            <pre><br></pre>
+                            <pre>    @Query("DELETE FROM money_records WHERE id = :id")</pre>
+                            <pre>    suspend fun deleteById(id: Int)</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>//Repository ---------------------------------------------------------------------------------------</pre>
+                            <pre>interface MoneyRecordRepository {</pre>
+                            <pre>    fun getAllItemsStream(): Flow&lt;List&lt;MoneyRecord&gt;&gt;</pre>
+                            <pre><br></pre>
+                            <pre>    fun getItemStream(id: Int): Flow&lt;MoneyRecord?&gt;</pre>
+                            <pre><br></pre>
+                            <pre>    suspend fun insertItem(item: MoneyRecord)</pre>
+                            <pre><br></pre>
+                            <pre>    suspend fun deleteItem(item: MoneyRecord)</pre>
+                            <pre><br></pre>
+                            <pre>    suspend fun updateItem(item: MoneyRecord)</pre>
+                            <pre><br></pre>
+                            <pre>    suspend fun deleteItemById(id: Int)</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>class OfflineMoneyRecordsRepository(private val moneyRecordDao: MoneyRecordDao) :</pre>
+                            <pre>    MoneyRecordRepository {</pre>
+                            <pre>    override fun getAllItemsStream(): Flow&lt;List&lt;MoneyRecord&gt;&gt; = moneyRecordDao.getAllItems()</pre>
+                            <pre><br></pre>
+                            <pre>    override fun getItemStream(id: Int): Flow&lt;MoneyRecord?&gt; = moneyRecordDao.getItem(id)</pre>
+                            <pre><br></pre>
+                            <pre>    override suspend fun insertItem(item: MoneyRecord) = moneyRecordDao.insert(item)</pre>
+                            <pre><br></pre>
+                            <pre>    override suspend fun deleteItem(item: MoneyRecord) = moneyRecordDao.delete(item)</pre>
+                            <pre><br></pre>
+                            <pre>    override suspend fun updateItem(item: MoneyRecord) = moneyRecordDao.update(item)</pre>
+                            <pre><br></pre>
+                            <pre>    override suspend fun deleteItemById(id: Int) = moneyRecordDao.deleteById(id)</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>//Database -----------------------------------------------------------------------------------------</pre>
+                            <pre>@Database(entities = [MoneyRecord::class], version = 1, exportSchema = false)</pre>
+                            <pre>abstract class MoneyRecordDatabase : RoomDatabase() {</pre>
+                            <pre><br></pre>
+                            <pre>    abstract fun moneyRecordDao(): MoneyRecordDao</pre>
+                            <pre><br></pre>
+                            <pre>    companion object {</pre>
+                            <pre>        @Volatile</pre>
+                            <pre>        private var Instance: MoneyRecordDatabase? = null</pre>
+                            <pre><br></pre>
+                            <pre>        fun getDatabase(context: Context): MoneyRecordDatabase {</pre>
+                            <pre>            return Instance ?: synchronized(this) {</pre>
+                            <pre>                val instance = Room.databaseBuilder(</pre>
+                            <pre>                    context.applicationContext,</pre>
+                            <pre>                    MoneyRecordDatabase::class.java,</pre>
+                            <pre>                    "database_money_record"</pre>
+                            <pre>                ).build()</pre>
+                            <pre>                Instance = instance</pre>
+                            <pre>                instance</pre>
+                            <pre>            }</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                        </div>
+
+                        <h3 id="04">
+                            ./ui/navigation
+                        </h3>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">NavGraph.kt</span><br>
+                            <pre>package com.sakura.money_recorder.ui.navigation</pre>
+                            <pre><br></pre>
+                            <pre>import androidx.compose.runtime.Composable</pre>
+                            <pre>import androidx.navigation.NavHostController</pre>
+                            <pre>import androidx.navigation.NavType</pre>
+                            <pre>import androidx.navigation.compose.NavHost</pre>
+                            <pre>import androidx.navigation.compose.composable</pre>
+                            <pre>import androidx.navigation.navArgument</pre>
+                            <pre>import com.sakura.money_recorder.ui.screen.EditMoneyRecordScreen</pre>
+                            <pre>import com.sakura.money_recorder.ui.screen.EditMoneyRecordScreenDestination</pre>
+                            <pre>import com.sakura.money_recorder.ui.screen.HomeScreen</pre>
+                            <pre>import com.sakura.money_recorder.ui.screen.HomeScreenDestination</pre>
+                            <pre>import com.sakura.money_recorder.ui.screen.InputMoneyRecordScreen</pre>
+                            <pre>import com.sakura.money_recorder.ui.screen.InputMoneyRecordScreenDestination</pre>
+                            <pre>import com.sakura.money_recorder.ui.screen.TableByCategoryScreen</pre>
+                            <pre>import com.sakura.money_recorder.ui.screen.TableByCategoryScreenDestination</pre>
+                            <pre><br></pre>
+                            <pre>interface NavigationDestination {</pre>
+                            <pre>    val route: String</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>@Composable</pre>
+                            <pre>fun MoneyRecorderNavHost(</pre>
+                            <pre>    navController: NavHostController,</pre>
+                            <pre>){</pre>
+                            <pre>    NavHost(</pre>
+                            <pre>        navController = navController,</pre>
+                            <pre>        startDestination = HomeScreenDestination.route</pre>
+                            <pre>    ) {</pre>
+                            <pre>        composable(route = HomeScreenDestination.route) { //ホーム画面</pre>
+                            <pre>            HomeScreen(</pre>
+                            <pre>                onAddRecordButtonClicked = {</pre>
+                            <pre>                    navController.navigate(InputMoneyRecordScreenDestination.route)</pre>
+                            <pre>                },</pre>
+                            <pre>                onMoneyRecordItemClicked = {</pre>
+                            <pre>                    navController.navigate("${EditMoneyRecordScreenDestination.route}/$it")</pre>
+                            <pre>                },</pre>
+                            <pre>                onToCategoryButtonClicked = {</pre>
+                            <pre>                    navController.navigate(TableByCategoryScreenDestination.route)</pre>
+                            <pre>                }</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>        composable(route = InputMoneyRecordScreenDestination.route) { //記録画面</pre>
+                            <pre>            InputMoneyRecordScreen(</pre>
+                            <pre>                onBackButtonClicked = {</pre>
+                            <pre>                    navController.navigateUp()</pre>
+                            <pre>                }</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>        composable(</pre>
+                            <pre>            route = "${EditMoneyRecordScreenDestination.route}/{moneyRecordId}",</pre>
+                            <pre>            arguments = listOf(navArgument("moneyRecordId") { type = NavType.IntType })</pre>
+                            <pre>        ) {</pre>
+                            <pre>            EditMoneyRecordScreen(</pre>
+                            <pre>                onBackButtonClicked = {</pre>
+                            <pre>                    navController.navigateUp()</pre>
+                            <pre>                }</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>        composable(route = TableByCategoryScreenDestination.route) { // 月別テーブル</pre>
+                            <pre>            TableByCategoryScreen(</pre>
+                            <pre>                onBackButtonClicked = { navController.navigateUp() },</pre>
+                            <pre>                onMoneyRecordClicked = { navController.navigate("${EditMoneyRecordScreenDestination.route}/${it}") },</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                        </div>
+
+                        <h3 id="05">
+                            ./ui/screen
+                        </h3>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">EditMoneyRecordScreen.kt</span><br>
+                            <pre>package com.sakura.money_recorder.ui.screen</pre>
+                            <pre><br></pre>
+                            <pre>import androidx.compose.foundation.layout.Column</pre>
+                            <pre>import androidx.compose.foundation.layout.Spacer</pre>
+                            <pre>import androidx.compose.foundation.layout.fillMaxWidth</pre>
+                            <pre>import androidx.compose.foundation.layout.height</pre>
+                            <pre>import androidx.compose.foundation.layout.padding</pre>
+                            <pre>import androidx.compose.material3.HorizontalDivider</pre>
+                            <pre>import androidx.compose.material3.OutlinedButton</pre>
+                            <pre>import androidx.compose.material3.Scaffold</pre>
+                            <pre>import androidx.compose.material3.Text</pre>
+                            <pre>import androidx.compose.runtime.Composable</pre>
+                            <pre>import androidx.compose.runtime.getValue</pre>
+                            <pre>import androidx.compose.runtime.mutableStateOf</pre>
+                            <pre>import androidx.compose.runtime.remember</pre>
+                            <pre>import androidx.compose.runtime.rememberCoroutineScope</pre>
+                            <pre>import androidx.compose.runtime.setValue</pre>
+                            <pre>import androidx.compose.ui.Modifier</pre>
+                            <pre>import androidx.compose.ui.tooling.preview.Preview</pre>
+                            <pre>import androidx.compose.ui.unit.dp</pre>
+                            <pre>import androidx.lifecycle.viewmodel.compose.viewModel</pre>
+                            <pre>import com.sakura.money_recorder.AppTopBar</pre>
+                            <pre>import com.sakura.money_recorder.AppViewModelProvider</pre>
+                            <pre>import com.sakura.money_recorder.ConfirmButton</pre>
+                            <pre>import com.sakura.money_recorder.MoneyRecordItem</pre>
+                            <pre>import com.sakura.money_recorder.OriginalAlertDialog</pre>
+                            <pre>import com.sakura.money_recorder.data.MoneyRecordUiState</pre>
+                            <pre>import com.sakura.money_recorder.data.isValid</pre>
+                            <pre>import com.sakura.money_recorder.data.toMoneyRecord</pre>
+                            <pre>import com.sakura.money_recorder.ui.navigation.NavigationDestination</pre>
+                            <pre>import kotlinx.coroutines.launch</pre>
+                            <pre><br></pre>
+                            <pre>object EditMoneyRecordScreenDestination : NavigationDestination {</pre>
+                            <pre>    override val route = "edit_money_record_screen"</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>@Composable</pre>
+                            <pre>fun EditMoneyRecordScreen(</pre>
+                            <pre>    viewModel: EditMoneyRecordScreenViewModel = viewModel(factory = AppViewModelProvider.Factory),</pre>
+                            <pre>    onBackButtonClicked: () -&gt; Unit = {},</pre>
+                            <pre>) {</pre>
+                            <pre>    val coroutineScope = rememberCoroutineScope()</pre>
+                            <pre><br></pre>
+                            <pre>    EditMoneyRecordScreenBody(</pre>
+                            <pre>        uiState = viewModel.moneyRecordUiState,</pre>
+                            <pre>        onUiStateChanged = viewModel::updateMoneyRecordUiState,</pre>
+                            <pre>        onSaveButtonClicked = {</pre>
+                            <pre>            coroutineScope.launch {</pre>
+                            <pre>                viewModel.saveMoneyRecord()</pre>
+                            <pre>                onBackButtonClicked()</pre>
+                            <pre>            }</pre>
+                            <pre>        },</pre>
+                            <pre>        onDeleteConfirmed = {</pre>
+                            <pre>            coroutineScope.launch {</pre>
+                            <pre>                viewModel.deleteMoneyRecord()</pre>
+                            <pre>                onBackButtonClicked()</pre>
+                            <pre>            }</pre>
+                            <pre>        },</pre>
+                            <pre>        onBackButtonClicked = onBackButtonClicked</pre>
+                            <pre>    )</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>@Composable</pre>
+                            <pre>private fun EditMoneyRecordScreenBody(</pre>
+                            <pre>    uiState: MoneyRecordUiState = MoneyRecordUiState(),</pre>
+                            <pre>    onUiStateChanged: (MoneyRecordUiState) -&gt; Unit = {},</pre>
+                            <pre>    onSaveButtonClicked: () -&gt; Unit = {},</pre>
+                            <pre>    onDeleteConfirmed: () -&gt; Unit = {},</pre>
+                            <pre>    onBackButtonClicked: () -&gt; Unit = {},</pre>
+                            <pre>    ) {</pre>
+                            <pre>    var deleteDialogOpened by remember { mutableStateOf(false) }</pre>
+                            <pre><br></pre>
+                            <pre>    Scaffold(</pre>
+                            <pre>        topBar = {</pre>
+                            <pre>            AppTopBar(</pre>
+                            <pre>                titleText = "編集",</pre>
+                            <pre>                canBack = true,</pre>
+                            <pre>                onBackButtonClicked = onBackButtonClicked</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>    ) { innerPadding -&gt;</pre>
+                            <pre>        Column(Modifier.padding(innerPadding)) {</pre>
+                            <pre>            Column(</pre>
+                            <pre>                modifier = Modifier.padding(16.dp)</pre>
+                            <pre>            ) {</pre>
+                            <pre><br></pre>
+                            <pre>                MoneyRecordInputField(</pre>
+                            <pre>                    uiState = uiState,</pre>
+                            <pre>                    onUiStateChanged = onUiStateChanged</pre>
+                            <pre>                )</pre>
+                            <pre><br></pre>
+                            <pre>                Spacer(Modifier.weight(1f))</pre>
+                            <pre><br></pre>
+                            <pre>                HorizontalDivider()</pre>
+                            <pre><br></pre>
+                            <pre>                Column(Modifier.padding(vertical = 8.dp)) {</pre>
+                            <pre>                    Text("記録例：")</pre>
+                            <pre>                    if (uiState.isValid())</pre>
+                            <pre>                        MoneyRecordItem(uiState.toMoneyRecord(), onClicked = {})</pre>
+                            <pre>                    else</pre>
+                            <pre>                        Text("記録内容が正しくありません。")</pre>
+                            <pre>                }</pre>
+                            <pre><br></pre>
+                            <pre>                Spacer(Modifier.height(8.dp))</pre>
+                            <pre><br></pre>
+                            <pre>                //決定ボタン</pre>
+                            <pre>                ConfirmButton(</pre>
+                            <pre>                    enabled = uiState.isValid(),</pre>
+                            <pre>                    text = "保存",</pre>
+                            <pre>                    onClicked = onSaveButtonClicked</pre>
+                            <pre>                )</pre>
+                            <pre><br></pre>
+                            <pre>                //削除ボタン</pre>
+                            <pre>                OutlinedButton(</pre>
+                            <pre>                    onClick = { deleteDialogOpened = true },</pre>
+                            <pre>                    modifier = Modifier</pre>
+                            <pre>                        .fillMaxWidth()</pre>
+                            <pre>                ) {</pre>
+                            <pre>                    Text("削除")</pre>
+                            <pre>                }</pre>
+                            <pre>            }</pre>
+                            <pre><br></pre>
+                            <pre><br></pre>
+                            <pre>            //削除確認ダイアログ</pre>
+                            <pre>            if (deleteDialogOpened) {</pre>
+                            <pre>                OriginalAlertDialog(</pre>
+                            <pre>                    onDismissRequest = { deleteDialogOpened = false },</pre>
+                            <pre>                    onConfirmation = {</pre>
+                            <pre>                        deleteDialogOpened = false</pre>
+                            <pre>                        onDeleteConfirmed()</pre>
+                            <pre>                    },</pre>
+                            <pre>                    dialogTitle = "削除",</pre>
+                            <pre>                    dialogText = "この記録を削除しますか？この操作は元に戻せません。",</pre>
+                            <pre>                    confirmButtonText = "削除"</pre>
+                            <pre>                )</pre>
+                            <pre>            }</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre><br></pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>//@Preview -----------------------------------------------------------------------------------------</pre>
+                            <pre>@Preview</pre>
+                            <pre>@Composable</pre>
+                            <pre>private fun ScreenPreviewEdit() {</pre>
+                            <pre>    EditMoneyRecordScreenBody()</pre>
+                            <pre>}</pre>
+                        </div>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">EditMoneyRecordScreenViewModel.kt</span><br>
+                            <pre>package com.sakura.money_recorder.ui.screen</pre>
+                            <pre><br></pre>
+                            <pre>import androidx.compose.runtime.getValue</pre>
+                            <pre>import androidx.compose.runtime.mutableStateOf</pre>
+                            <pre>import androidx.compose.runtime.setValue</pre>
+                            <pre>import androidx.lifecycle.SavedStateHandle</pre>
+                            <pre>import androidx.lifecycle.ViewModel</pre>
+                            <pre>import androidx.lifecycle.viewModelScope</pre>
+                            <pre>import com.sakura.money_recorder.data.MoneyRecordRepository</pre>
+                            <pre>import com.sakura.money_recorder.data.MoneyRecordUiState</pre>
+                            <pre>import com.sakura.money_recorder.data.toMoneyRecord</pre>
+                            <pre>import com.sakura.money_recorder.data.toMoneyRecordUiState</pre>
+                            <pre>import kotlinx.coroutines.flow.filterNotNull</pre>
+                            <pre>import kotlinx.coroutines.flow.first</pre>
+                            <pre>import kotlinx.coroutines.launch</pre>
+                            <pre><br></pre>
+                            <pre>class EditMoneyRecordScreenViewModel(</pre>
+                            <pre>    savedStateHandle: SavedStateHandle, //画面遷移でデータを受け取るときに必要</pre>
+                            <pre>    private val moneyRecordRepository: MoneyRecordRepository,</pre>
+                            <pre>) : ViewModel() {</pre>
+                            <pre>    private val moneyRecordId: Int = checkNotNull(savedStateHandle["moneyRecordId"]) //このように受け取る</pre>
+                            <pre><br></pre>
+                            <pre>    var moneyRecordUiState by mutableStateOf(MoneyRecordUiState()) //定義だけ</pre>
+                            <pre>        private set</pre>
+                            <pre><br></pre>
+                            <pre>    init { //取得する</pre>
+                            <pre>        viewModelScope.launch {</pre>
+                            <pre>            moneyRecordUiState = moneyRecordRepository.getItemStream(moneyRecordId)</pre>
+                            <pre>                .filterNotNull()</pre>
+                            <pre>                .first()</pre>
+                            <pre>                .toMoneyRecordUiState()</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre>    fun updateMoneyRecordUiState(uiState: MoneyRecordUiState) {</pre>
+                            <pre>        moneyRecordUiState = uiState</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre>    suspend fun saveMoneyRecord() {</pre>
+                            <pre>        moneyRecordRepository.updateItem(moneyRecordUiState.toMoneyRecord())</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre>    suspend fun deleteMoneyRecord() {</pre>
+                            <pre>        moneyRecordRepository.deleteItemById(moneyRecordUiState.id)</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                        </div>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">HomeScreen.kt</span><br>
+                            <pre>package com.sakura.money_recorder.ui.screen</pre>
+                            <pre><br></pre>
+                            <pre>import androidx.compose.foundation.clickable</pre>
+                            <pre>import androidx.compose.foundation.layout.Column</pre>
+                            <pre>import androidx.compose.foundation.layout.Row</pre>
+                            <pre>import androidx.compose.foundation.layout.Spacer</pre>
+                            <pre>import androidx.compose.foundation.layout.fillMaxWidth</pre>
+                            <pre>import androidx.compose.foundation.layout.height</pre>
+                            <pre>import androidx.compose.foundation.layout.padding</pre>
+                            <pre>import androidx.compose.foundation.layout.width</pre>
+                            <pre>import androidx.compose.foundation.lazy.LazyColumn</pre>
+                            <pre>import androidx.compose.foundation.lazy.items</pre>
+                            <pre>import androidx.compose.material.icons.Icons</pre>
+                            <pre>import androidx.compose.material.icons.filled.Add</pre>
+                            <pre>import androidx.compose.material.icons.filled.ChevronRight</pre>
+                            <pre>import androidx.compose.material.icons.filled.CreditCard</pre>
+                            <pre>import androidx.compose.material.icons.filled.History</pre>
+                            <pre>import androidx.compose.material.icons.filled.Home</pre>
+                            <pre>import androidx.compose.material.icons.outlined.CreditCard</pre>
+                            <pre>import androidx.compose.material.icons.outlined.History</pre>
+                            <pre>import androidx.compose.material.icons.outlined.Home</pre>
+                            <pre>import androidx.compose.material3.Card</pre>
+                            <pre>import androidx.compose.material3.FloatingActionButton</pre>
+                            <pre>import androidx.compose.material3.HorizontalDivider</pre>
+                            <pre>import androidx.compose.material3.Icon</pre>
+                            <pre>import androidx.compose.material3.MaterialTheme</pre>
+                            <pre>import androidx.compose.material3.NavigationBar</pre>
+                            <pre>import androidx.compose.material3.NavigationBarItem</pre>
+                            <pre>import androidx.compose.material3.Scaffold</pre>
+                            <pre>import androidx.compose.material3.Text</pre>
+                            <pre>import androidx.compose.runtime.Composable</pre>
+                            <pre>import androidx.compose.runtime.collectAsState</pre>
+                            <pre>import androidx.compose.runtime.getValue</pre>
+                            <pre>import androidx.compose.ui.Modifier</pre>
+                            <pre>import androidx.compose.ui.tooling.preview.Preview</pre>
+                            <pre>import androidx.compose.ui.unit.dp</pre>
+                            <pre>import androidx.lifecycle.viewmodel.compose.viewModel</pre>
+                            <pre>import com.sakura.money_recorder.AppTopBar</pre>
+                            <pre>import com.sakura.money_recorder.AppViewModelProvider</pre>
+                            <pre>import com.sakura.money_recorder.MoneyRecordGroupItem</pre>
+                            <pre>import com.sakura.money_recorder.convertMillisToYearMonth</pre>
+                            <pre>import com.sakura.money_recorder.data.MoneyRecordGroup</pre>
+                            <pre>import com.sakura.money_recorder.data.categoryList</pre>
+                            <pre>import com.sakura.money_recorder.data.moneyRecordGroupListForTest</pre>
+                            <pre>import com.sakura.money_recorder.formatYen</pre>
+                            <pre>import com.sakura.money_recorder.getNowMillis</pre>
+                            <pre>import com.sakura.money_recorder.ui.navigation.NavigationDestination</pre>
+                            <pre><br></pre>
+                            <pre>object HomeScreenDestination : NavigationDestination {</pre>
+                            <pre>    override val route = "home"</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>@Composable</pre>
+                            <pre>fun HomeScreen(</pre>
+                            <pre>    viewModel: HomeScreenViewModel = viewModel(factory = AppViewModelProvider.Factory),</pre>
+                            <pre>    onAddRecordButtonClicked: () -&gt; Unit,</pre>
+                            <pre>    onToCategoryButtonClicked: () -&gt; Unit,</pre>
+                            <pre>    onMoneyRecordItemClicked: (Int) -&gt; Unit,</pre>
+                            <pre>) {</pre>
+                            <pre>    val moneyRecordGroupMonthList by viewModel.moneyRecordGroupMonthList.collectAsState()</pre>
+                            <pre><br></pre>
+                            <pre>    HomeScreenBody(</pre>
+                            <pre>        selectedNavIndex = viewModel.selectedNavigationItem,</pre>
+                            <pre>        onNavigationItemSelected = { viewModel.updateSelectedNavigationItem(it) },</pre>
+                            <pre><br></pre>
+                            <pre>        moneyRecordGroupList = moneyRecordGroupMonthList,</pre>
+                            <pre>        onMoneyRecordItemClicked = onMoneyRecordItemClicked,</pre>
+                            <pre><br></pre>
+                            <pre>        onAddRecordButtonClicked = onAddRecordButtonClicked,</pre>
+                            <pre>        onToCategoryButtonClicked = onToCategoryButtonClicked</pre>
+                            <pre>    )</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>@Composable</pre>
+                            <pre>private fun HomeScreenBody(</pre>
+                            <pre>    selectedNavIndex: Int = 0,</pre>
+                            <pre>    onNavigationItemSelected: (Int) -&gt; Unit = {},</pre>
+                            <pre><br></pre>
+                            <pre>    moneyRecordGroupList: List&lt;MoneyRecordGroup&gt; = listOf(),</pre>
+                            <pre>    onMoneyRecordItemClicked: (Int) -&gt; Unit = {},</pre>
+                            <pre><br></pre>
+                            <pre>    onAddRecordButtonClicked: () -&gt; Unit = {},</pre>
+                            <pre>    onToCategoryButtonClicked: () -&gt; Unit = {},</pre>
+                            <pre>) {</pre>
+                            <pre>    Scaffold(</pre>
+                            <pre>        topBar = {</pre>
+                            <pre>            AppTopBar(titleText = "お小遣い帳")</pre>
+                            <pre>        },</pre>
+                            <pre>        bottomBar = {</pre>
+                            <pre>            val items = listOf("ホーム", "残高", "履歴") //下のナビゲーションバーの要素リスト</pre>
+                            <pre>            val icons = listOf(                       //アイコンリスト</pre>
+                            <pre>                Icons.Outlined.Home,</pre>
+                            <pre>                Icons.Outlined.CreditCard,</pre>
+                            <pre>                Icons.Outlined.History,</pre>
+                            <pre>            )</pre>
+                            <pre>            val selectedIcons = listOf(                //選択されたときのアイコンリスト</pre>
+                            <pre>                Icons.Filled.Home,</pre>
+                            <pre>                Icons.Filled.CreditCard,</pre>
+                            <pre>                Icons.Filled.History,</pre>
+                            <pre>            )</pre>
+                            <pre>            NavigationBar {</pre>
+                            <pre>                items.forEachIndexed { index, itemName -&gt;</pre>
+                            <pre>                    NavigationBarItem(</pre>
+                            <pre>                        icon = {</pre>
+                            <pre>                            Icon(</pre>
+                            <pre>                                imageVector = if (index == selectedNavIndex) selectedIcons[index] else icons[index],</pre>
+                            <pre>                                contentDescription = null</pre>
+                            <pre>                            )</pre>
+                            <pre>                        },</pre>
+                            <pre>                        label = { Text(text = itemName) },</pre>
+                            <pre>                        selected = index == selectedNavIndex,</pre>
+                            <pre>                        onClick = { onNavigationItemSelected(index) }</pre>
+                            <pre>                    )</pre>
+                            <pre>                }</pre>
+                            <pre>            }</pre>
+                            <pre>        },</pre>
+                            <pre>        floatingActionButton = {</pre>
+                            <pre>            FloatingActionButton(</pre>
+                            <pre>                onClick = onAddRecordButtonClicked</pre>
+                            <pre>            ) {</pre>
+                            <pre>                Icon(</pre>
+                            <pre>                    imageVector = Icons.Default.Add,</pre>
+                            <pre>                    contentDescription = null</pre>
+                            <pre>                )</pre>
+                            <pre>            }</pre>
+                            <pre>        },</pre>
+                            <pre>    ) { innerPadding -&gt; //戻り値をinnerPaddingに指定</pre>
+                            <pre>        Column(Modifier.padding(innerPadding)) {</pre>
+                            <pre>            if (selectedNavIndex == 0) { //ホーム</pre>
+                            <pre><br></pre>
+                            <pre>            }</pre>
+                            <pre>            else if (selectedNavIndex == 1) { //残高</pre>
+                            <pre>                Column(</pre>
+                            <pre>                    modifier = Modifier.padding(16.dp) //いい感じにスペーシング</pre>
+                            <pre>                ) {</pre>
+                            <pre>                    Text(text = " 総額 ")</pre>
+                            <pre>                    Row {</pre>
+                            <pre>                        Spacer(Modifier.weight(1f))</pre>
+                            <pre>                        Text(</pre>
+                            <pre>                            text = formatYen(moneyRecordGroupList.sumOf { it.moneyRecordList.sumOf { moneyRecord -&gt; moneyRecord.amount } }),</pre>
+                            <pre>                            style = MaterialTheme.typography.headlineLarge</pre>
+                            <pre>                        )</pre>
+                            <pre>                    }</pre>
+                            <pre>                    HorizontalDivider(Modifier.padding(bottom = 16.dp))</pre>
+                            <pre><br></pre>
+                            <pre>                    //今月のGroupの取得</pre>
+                            <pre>                    val moneyRecordGroupListNowMonth = moneyRecordGroupList.find {</pre>
+                            <pre>                        it.name == convertMillisToYearMonth(getNowMillis())</pre>
+                            <pre>                    }?.moneyRecordList //見つからなかった時ための"?." これはList?になる</pre>
+                            <pre><br></pre>
+                            <pre>                    //月別の収入支出</pre>
+                            <pre>                    Card(</pre>
+                            <pre>                        modifier = Modifier</pre>
+                            <pre>                            .fillMaxWidth()</pre>
+                            <pre>                    ) {</pre>
+                            <pre>                        Column(Modifier.padding(16.dp)) {</pre>
+                            <pre>                            Row {</pre>
+                            <pre>                                Text("月別の収入、支出")</pre>
+                            <pre>                            }</pre>
+                            <pre>                            Text(</pre>
+                            <pre>                                text = "今月：${convertMillisToYearMonth(getNowMillis())}",</pre>
+                            <pre>                                style = MaterialTheme.typography.headlineMedium</pre>
+                            <pre>                            )</pre>
+                            <pre>                            HorizontalDivider(Modifier.padding(bottom = 8.dp))</pre>
+                            <pre>                            Row {</pre>
+                            <pre>                                Spacer(Modifier.width(8.dp))</pre>
+                            <pre>                                Text("収入")</pre>
+                            <pre>                                Spacer(Modifier.weight(1f))</pre>
+                            <pre>                                Text(</pre>
+                            <pre>                                    text = formatYen(</pre>
+                            <pre>                                        moneyRecordGroupListNowMonth</pre>
+                            <pre>                                            ?.filter { it.amount &gt;= 0 }</pre>
+                            <pre>                                            ?.sumOf { it.amount } ?: 0, //もしListが見つからなかったら0となるように</pre>
+                            <pre>                                    ),</pre>
+                            <pre>                                )</pre>
+                            <pre>                            }</pre>
+                            <pre>                            Row {</pre>
+                            <pre>                                Spacer(Modifier.width(8.dp))</pre>
+                            <pre>                                Text("支出")</pre>
+                            <pre>                                Spacer(Modifier.weight(1f))</pre>
+                            <pre>                                Text(</pre>
+                            <pre>                                    text = formatYen(</pre>
+                            <pre>                                        moneyRecordGroupListNowMonth</pre>
+                            <pre>                                            ?.filter { it.amount &lt;= 0 }</pre>
+                            <pre>                                            ?.sumOf { it.amount } ?: 0,</pre>
+                            <pre>                                    ),</pre>
+                            <pre>                                )</pre>
+                            <pre>                            }</pre>
+                            <pre>                            Spacer(Modifier.height(8.dp))</pre>
+                            <pre>                            Row {</pre>
+                            <pre>                                Spacer(Modifier.width(8.dp))</pre>
+                            <pre>                                Text("総計")</pre>
+                            <pre>                                Spacer(Modifier.weight(1f))</pre>
+                            <pre>                                Text(</pre>
+                            <pre>                                    text = formatYen(</pre>
+                            <pre>                                        moneyRecordGroupListNowMonth?.sumOf { it.amount } ?: 0,</pre>
+                            <pre>                                    ),</pre>
+                            <pre>                                )</pre>
+                            <pre>                            }</pre>
+                            <pre>                        }</pre>
+                            <pre>                    }</pre>
+                            <pre><br></pre>
+                            <pre>                    //スペースをあける</pre>
+                            <pre>                    Spacer(Modifier.height(16.dp))</pre>
+                            <pre><br></pre>
+                            <pre>                    //カテゴリー別の収入支出</pre>
+                            <pre>                    Card(</pre>
+                            <pre>                        modifier = Modifier</pre>
+                            <pre>                            .fillMaxWidth()</pre>
+                            <pre>                            .clickable(</pre>
+                            <pre>                                onClick = onToCategoryButtonClicked</pre>
+                            <pre>                            )</pre>
+                            <pre>                    ) {</pre>
+                            <pre>                        Column(Modifier.padding(16.dp)) {</pre>
+                            <pre>                            Row {</pre>
+                            <pre>                                Text("カテゴリ別の収入、支出")</pre>
+                            <pre>                                Spacer(Modifier.weight(1f))</pre>
+                            <pre>                                Icon(</pre>
+                            <pre>                                    imageVector = Icons.Filled.ChevronRight,</pre>
+                            <pre>                                    contentDescription = null</pre>
+                            <pre>                                )</pre>
+                            <pre>                            }</pre>
+                            <pre>                            Text(</pre>
+                            <pre>                                text = "今月：${convertMillisToYearMonth(getNowMillis())}",</pre>
+                            <pre>                                style = MaterialTheme.typography.headlineMedium</pre>
+                            <pre>                            )</pre>
+                            <pre>                            HorizontalDivider(Modifier.padding(bottom = 8.dp))</pre>
+                            <pre>                            LazyColumn {</pre>
+                            <pre>                                items(</pre>
+                            <pre>                                    items = categoryList,</pre>
+                            <pre>                                    key = { it.name }</pre>
+                            <pre>                                ) { category -&gt;</pre>
+                            <pre>                                    Row {</pre>
+                            <pre>                                        Spacer(Modifier.width(8.dp))</pre>
+                            <pre>                                        Text(category.name)</pre>
+                            <pre>                                        Spacer(Modifier.weight(1f))</pre>
+                            <pre>                                        Text(</pre>
+                            <pre>                                            text = formatYen(</pre>
+                            <pre>                                                moneyRecordGroupListNowMonth</pre>
+                            <pre>                                                    ?.filter { it.category == category.name }</pre>
+                            <pre>                                                    ?.sumOf { it.amount } ?: 0,</pre>
+                            <pre>                                            ),</pre>
+                            <pre>                                        )</pre>
+                            <pre>                                    }</pre>
+                            <pre>                                }</pre>
+                            <pre>                            }</pre>
+                            <pre>                        }</pre>
+                            <pre>                    }</pre>
+                            <pre>                }</pre>
+                            <pre>            }</pre>
+                            <pre>            else if (selectedNavIndex == 2) { //履歴</pre>
+                            <pre>                LazyColumn { //可変のリストにはこのLazyColumnを使う</pre>
+                            <pre>                    items(</pre>
+                            <pre>                        items = moneyRecordGroupList,</pre>
+                            <pre>                        key = { it.name } //これを指定することで処理軽減になる</pre>
+                            <pre>                    ) { group -&gt;</pre>
+                            <pre>                        MoneyRecordGroupItem(</pre>
+                            <pre>                            moneyRecordGroup = group,</pre>
+                            <pre>                            onClicked = { onMoneyRecordItemClicked(it) }</pre>
+                            <pre>                        )</pre>
+                            <pre>                    }</pre>
+                            <pre>                }</pre>
+                            <pre>            }</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>//Preview -----------------------------------------</pre>
+                            <pre><br></pre>
+                            <pre>@Preview</pre>
+                            <pre>@Composable</pre>
+                            <pre>fun PreviewHomeScreen() {</pre>
+                            <pre>    HomeScreenBody(</pre>
+                            <pre>        selectedNavIndex = 1,</pre>
+                            <pre>        moneyRecordGroupList = moneyRecordGroupListForTest</pre>
+                            <pre>    )</pre>
+                            <pre>}</pre>
+                        </div>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">HomeScreenViewModel.kt</span><br>
+                            <pre>package com.sakura.money_recorder.ui.screen</pre>
+                            <pre><br></pre>
+                            <pre>import androidx.compose.runtime.getValue</pre>
+                            <pre>import androidx.compose.runtime.mutableIntStateOf</pre>
+                            <pre>import androidx.compose.runtime.setValue</pre>
+                            <pre>import androidx.lifecycle.ViewModel</pre>
+                            <pre>import androidx.lifecycle.viewModelScope</pre>
+                            <pre>import com.sakura.money_recorder.convertMillisToYearMonth</pre>
+                            <pre>import com.sakura.money_recorder.data.MoneyRecordGroup</pre>
+                            <pre>import com.sakura.money_recorder.data.MoneyRecordRepository</pre>
+                            <pre>import com.sakura.money_recorder.data.moneyRecordGroupListForTest</pre>
+                            <pre>import kotlinx.coroutines.flow.SharingStarted</pre>
+                            <pre>import kotlinx.coroutines.flow.StateFlow</pre>
+                            <pre>import kotlinx.coroutines.flow.map</pre>
+                            <pre>import kotlinx.coroutines.flow.stateIn</pre>
+                            <pre><br></pre>
+                            <pre>class HomeScreenViewModel(</pre>
+                            <pre>    private val moneyRecordRepository: MoneyRecordRepository</pre>
+                            <pre>) : ViewModel() {</pre>
+                            <pre>    //NavigationBar関連 -----------------------------------------------------------------------------</pre>
+                            <pre>    var selectedNavigationItem by mutableIntStateOf(0) //可変変数の定義</pre>
+                            <pre>        private set                                           //ViewModelでのみ変更可能</pre>
+                            <pre><br></pre>
+                            <pre>    fun updateSelectedNavigationItem(i: Int) {                //変更する際の関数</pre>
+                            <pre>        selectedNavigationItem = i</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre><br></pre>
+                            <pre>    val moneyRecordGroupMonthList: StateFlow&lt;List&lt;MoneyRecordGroup&gt;&gt; =</pre>
+                            <pre>        moneyRecordRepository.getAllItemsStream().map { moneyRecordList -&gt;</pre>
+                            <pre>            moneyRecordList</pre>
+                            <pre>                .groupBy { convertMillisToYearMonth(it.time) }</pre>
+                            <pre>                .map {</pre>
+                            <pre>                    MoneyRecordGroup(</pre>
+                            <pre>                        name = it.key,</pre>
+                            <pre>                        moneyRecordList = it.value</pre>
+                            <pre>                    )</pre>
+                            <pre>                }</pre>
+                            <pre>        }.stateIn(</pre>
+                            <pre>            scope = viewModelScope,</pre>
+                            <pre>            started = SharingStarted.WhileSubscribed(5000),</pre>
+                            <pre>            initialValue = moneyRecordGroupListForTest</pre>
+                            <pre>        )</pre>
+                            <pre>}</pre>
+                        </div>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">InputMoneyRecordScreen.kt</span><br>
+                            <pre>package com.sakura.money_recorder.ui.screen</pre>
+                            <pre><br></pre>
+                            <pre>import androidx.compose.foundation.clickable</pre>
+                            <pre>import androidx.compose.foundation.horizontalScroll</pre>
+                            <pre>import androidx.compose.foundation.layout.Column</pre>
+                            <pre>import androidx.compose.foundation.layout.Row</pre>
+                            <pre>import androidx.compose.foundation.layout.Spacer</pre>
+                            <pre>import androidx.compose.foundation.layout.fillMaxWidth</pre>
+                            <pre>import androidx.compose.foundation.layout.height</pre>
+                            <pre>import androidx.compose.foundation.layout.padding</pre>
+                            <pre>import androidx.compose.foundation.rememberScrollState</pre>
+                            <pre>import androidx.compose.foundation.text.KeyboardOptions</pre>
+                            <pre>import androidx.compose.material3.FilterChip</pre>
+                            <pre>import androidx.compose.material3.HorizontalDivider</pre>
+                            <pre>import androidx.compose.material3.Icon</pre>
+                            <pre>import androidx.compose.material3.OutlinedTextField</pre>
+                            <pre>import androidx.compose.material3.Scaffold</pre>
+                            <pre>import androidx.compose.material3.Switch</pre>
+                            <pre>import androidx.compose.material3.Text</pre>
+                            <pre>import androidx.compose.runtime.Composable</pre>
+                            <pre>import androidx.compose.runtime.getValue</pre>
+                            <pre>import androidx.compose.runtime.mutableStateOf</pre>
+                            <pre>import androidx.compose.runtime.remember</pre>
+                            <pre>import androidx.compose.runtime.rememberCoroutineScope</pre>
+                            <pre>import androidx.compose.runtime.setValue</pre>
+                            <pre>import androidx.compose.ui.Alignment</pre>
+                            <pre>import androidx.compose.ui.Modifier</pre>
+                            <pre>import androidx.compose.ui.text.input.KeyboardType</pre>
+                            <pre>import androidx.compose.ui.tooling.preview.Preview</pre>
+                            <pre>import androidx.compose.ui.unit.dp</pre>
+                            <pre>import androidx.lifecycle.viewmodel.compose.viewModel</pre>
+                            <pre>import com.sakura.money_recorder.AppTopBar</pre>
+                            <pre>import com.sakura.money_recorder.AppViewModelProvider</pre>
+                            <pre>import com.sakura.money_recorder.ConfirmButton</pre>
+                            <pre>import com.sakura.money_recorder.DatePickerModal</pre>
+                            <pre>import com.sakura.money_recorder.MoneyRecordItem</pre>
+                            <pre>import com.sakura.money_recorder.convertMillisToDate</pre>
+                            <pre>import com.sakura.money_recorder.data.MoneyRecordUiState</pre>
+                            <pre>import com.sakura.money_recorder.data.categoryList</pre>
+                            <pre>import com.sakura.money_recorder.data.isValid</pre>
+                            <pre>import com.sakura.money_recorder.data.toMoneyRecord</pre>
+                            <pre>import com.sakura.money_recorder.getNowMillis</pre>
+                            <pre>import com.sakura.money_recorder.ui.navigation.NavigationDestination</pre>
+                            <pre>import kotlinx.coroutines.launch</pre>
+                            <pre><br></pre>
+                            <pre>object InputMoneyRecordScreenDestination : NavigationDestination {</pre>
+                            <pre>    override val route = "input_money_record"</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>@Composable</pre>
+                            <pre>fun InputMoneyRecordScreen(</pre>
+                            <pre>    viewModel: InputMoneyRecordScreenViewModel = viewModel(factory = AppViewModelProvider.Factory),</pre>
+                            <pre>    onBackButtonClicked: () -&gt; Unit,</pre>
+                            <pre>    ) {</pre>
+                            <pre>    val coroutineScope = rememberCoroutineScope()</pre>
+                            <pre><br></pre>
+                            <pre>    InputMoneyRecordScreenBody(</pre>
+                            <pre>        uiState = viewModel.moneyRecordUiState,</pre>
+                            <pre>        onUiStateChanged = viewModel::updateMoneyRecordUiState,</pre>
+                            <pre><br></pre>
+                            <pre>        onBackButtonClicked = onBackButtonClicked,</pre>
+                            <pre>        onSaveButtonClicked = {</pre>
+                            <pre>            coroutineScope.launch {</pre>
+                            <pre>                viewModel.saveMoneyRecord()</pre>
+                            <pre>                onBackButtonClicked()</pre>
+                            <pre>            }</pre>
+                            <pre>        }</pre>
+                            <pre>    )</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>@Composable</pre>
+                            <pre>private fun InputMoneyRecordScreenBody(</pre>
+                            <pre>    uiState: MoneyRecordUiState = MoneyRecordUiState(),</pre>
+                            <pre>    onBackButtonClicked: () -&gt; Unit = {}, //戻るボタンが押されたときの関数</pre>
+                            <pre>    onUiStateChanged: (MoneyRecordUiState) -&gt; Unit = {}, //UiStateが変更されたときの関数</pre>
+                            <pre>    onSaveButtonClicked: () -&gt; Unit = {} //記録ボタンが押されたときの関数</pre>
+                            <pre>) {</pre>
+                            <pre>    Scaffold(</pre>
+                            <pre>        topBar = {</pre>
+                            <pre>            AppTopBar(</pre>
+                            <pre>                titleText = "記録",</pre>
+                            <pre>                canBack = true,</pre>
+                            <pre>                onBackButtonClicked = onBackButtonClicked</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>    ) { innerPadding -&gt;</pre>
+                            <pre>        Column(Modifier.padding(innerPadding)) {</pre>
+                            <pre>            Column(</pre>
+                            <pre>                modifier = Modifier.padding(16.dp)</pre>
+                            <pre>            ) {</pre>
+                            <pre>                //編集画面を作るときも同じレイアウトを使用するため関数化</pre>
+                            <pre>                MoneyRecordInputField(</pre>
+                            <pre>                    uiState = uiState,</pre>
+                            <pre>                    onUiStateChanged = onUiStateChanged</pre>
+                            <pre>                )</pre>
+                            <pre><br></pre>
+                            <pre>                Spacer(Modifier.weight(1f))</pre>
+                            <pre><br></pre>
+                            <pre>                HorizontalDivider()</pre>
+                            <pre><br></pre>
+                            <pre>                //記入例を表示、MoneyRecordItemを活用</pre>
+                            <pre>                Column(Modifier.padding(vertical = 8.dp)) {</pre>
+                            <pre>                    Text("記録例：")</pre>
+                            <pre>                    if (uiState.isValid())</pre>
+                            <pre>                        MoneyRecordItem(uiState.toMoneyRecord(), onClicked = {})</pre>
+                            <pre>                    else</pre>
+                            <pre>                        Text("記録内容が正しくありません。")</pre>
+                            <pre>                }</pre>
+                            <pre><br></pre>
+                            <pre>                Spacer(Modifier.height(8.dp))</pre>
+                            <pre><br></pre>
+                            <pre>                //記録ボタン</pre>
+                            <pre>                ConfirmButton(</pre>
+                            <pre>                    enabled = uiState.isValid(),</pre>
+                            <pre>                    text = "記録",</pre>
+                            <pre>                    onClicked = onSaveButtonClicked</pre>
+                            <pre>                )</pre>
+                            <pre>            }</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>@Composable</pre>
+                            <pre>fun MoneyRecordInputField(</pre>
+                            <pre>    uiState: MoneyRecordUiState,</pre>
+                            <pre>    onUiStateChanged: (MoneyRecordUiState) -&gt; Unit,</pre>
+                            <pre>) {</pre>
+                            <pre>    var datePickerOpened by remember { mutableStateOf(false) }</pre>
+                            <pre><br></pre>
+                            <pre>    //金額入力</pre>
+                            <pre>    OutlinedTextField(</pre>
+                            <pre>        value = uiState.input,</pre>
+                            <pre>        onValueChange = { onUiStateChanged(uiState.copy(input = it)) }, label = { Text("金額") },</pre>
+                            <pre>        singleLine = true,</pre>
+                            <pre>        keyboardOptions = KeyboardOptions.Default.copy(</pre>
+                            <pre>            keyboardType = KeyboardType.Number</pre>
+                            <pre>        ),</pre>
+                            <pre>        modifier = Modifier</pre>
+                            <pre>            .fillMaxWidth()</pre>
+                            <pre>            .padding(bottom = 8.dp)</pre>
+                            <pre>    )</pre>
+                            <pre><br></pre>
+                            <pre>    HorizontalDivider()</pre>
+                            <pre><br></pre>
+                            <pre>    //ボタンだけでなくフィールド全体でタップを感知</pre>
+                            <pre>    Column(</pre>
+                            <pre>        Modifier.clickable(</pre>
+                            <pre>            onClick = { onUiStateChanged(uiState.copy(sign = uiState.sign * -1)) }</pre>
+                            <pre>        )</pre>
+                            <pre>    ) {</pre>
+                            <pre>        Row(</pre>
+                            <pre>            modifier = Modifier</pre>
+                            <pre>                .fillMaxWidth()</pre>
+                            <pre>                .padding(vertical = 8.dp)</pre>
+                            <pre>                .height(50.dp),</pre>
+                            <pre>            verticalAlignment = Alignment.CenterVertically</pre>
+                            <pre>        ) {</pre>
+                            <pre>            Text(text = "マイナス/プラス")</pre>
+                            <pre>            Spacer(Modifier.weight(1f))</pre>
+                            <pre>            Switch( //収入か支出かをボタンで管理</pre>
+                            <pre>                checked = uiState.sign != -1,</pre>
+                            <pre>                onCheckedChange = { onUiStateChanged(uiState.copy(sign = uiState.sign * -1)) }</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre>    HorizontalDivider()</pre>
+                            <pre><br></pre>
+                            <pre><br></pre>
+                            <pre>    //日付入力</pre>
+                            <pre>    Column(</pre>
+                            <pre>        modifier = Modifier.clickable(</pre>
+                            <pre>            onClick = { datePickerOpened = true }</pre>
+                            <pre>        ),</pre>
+                            <pre>    ) {</pre>
+                            <pre>        Row(</pre>
+                            <pre>            modifier = Modifier</pre>
+                            <pre>                .fillMaxWidth()</pre>
+                            <pre>                .padding(vertical = 8.dp)</pre>
+                            <pre>                .height(50.dp),</pre>
+                            <pre>            verticalAlignment = Alignment.CenterVertically,</pre>
+                            <pre>        ) {</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "年月日：",</pre>
+                            <pre>            )</pre>
+                            <pre>            Spacer(modifier = Modifier.weight(1f))</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = convertMillisToDate(uiState.time),</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre>    HorizontalDivider()</pre>
+                            <pre><br></pre>
+                            <pre>    //カテゴリ選択</pre>
+                            <pre>    Column(</pre>
+                            <pre>        modifier = Modifier</pre>
+                            <pre>            .padding(vertical = 4.dp)</pre>
+                            <pre>    ) {</pre>
+                            <pre>        Text(text = "カテゴリ：")</pre>
+                            <pre>        Row(</pre>
+                            <pre>            modifier = Modifier.horizontalScroll(rememberScrollState())</pre>
+                            <pre>        ) {</pre>
+                            <pre>            categoryList.forEach { category -&gt;</pre>
+                            <pre>                FilterChip(</pre>
+                            <pre>                    onClick = {</pre>
+                            <pre>                        if (category.name == uiState.category) {</pre>
+                            <pre>                            onUiStateChanged(uiState.copy(category = "その他"))</pre>
+                            <pre>                        } else {</pre>
+                            <pre>                            onUiStateChanged(uiState.copy(category = category.name))</pre>
+                            <pre>                        }</pre>
+                            <pre>                    },</pre>
+                            <pre>                    selected = category.name == uiState.category,</pre>
+                            <pre>                    label = { Text(text = category.name) },</pre>
+                            <pre>                    leadingIcon = {</pre>
+                            <pre>                        Icon(</pre>
+                            <pre>                            imageVector = category.image,</pre>
+                            <pre>                            contentDescription = null</pre>
+                            <pre>                        )</pre>
+                            <pre>                    },</pre>
+                            <pre>                    modifier = Modifier</pre>
+                            <pre>                        .padding(horizontal = 2.dp)</pre>
+                            <pre>                )</pre>
+                            <pre>            }</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre>    HorizontalDivider()</pre>
+                            <pre><br></pre>
+                            <pre><br></pre>
+                            <pre>    //メモ欄</pre>
+                            <pre>    OutlinedTextField(</pre>
+                            <pre>        value = uiState.memo,</pre>
+                            <pre>        onValueChange = { onUiStateChanged(uiState.copy(memo = it)) },</pre>
+                            <pre>        label = { Text(text = "メモ") },</pre>
+                            <pre>        keyboardOptions = KeyboardOptions.Default.copy(</pre>
+                            <pre>            keyboardType = KeyboardType.Text</pre>
+                            <pre>        ),</pre>
+                            <pre>        modifier = Modifier</pre>
+                            <pre>            .padding(bottom = 8.dp)</pre>
+                            <pre>            .fillMaxWidth()</pre>
+                            <pre>    )</pre>
+                            <pre><br></pre>
+                            <pre>    HorizontalDivider()</pre>
+                            <pre><br></pre>
+                            <pre>    //日付選択ポップアップ ポップアップはどこでもよい(と思う)</pre>
+                            <pre>    if (datePickerOpened) {</pre>
+                            <pre>        DatePickerModal(</pre>
+                            <pre>            onDateSelected = {</pre>
+                            <pre>                onUiStateChanged(uiState.copy(time = it!!))</pre>
+                            <pre>            },</pre>
+                            <pre>            onDismiss = { datePickerOpened = false }</pre>
+                            <pre>        )</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>//Preview -----------------------------------------</pre>
+                            <pre><br></pre>
+                            <pre>@Preview</pre>
+                            <pre>@Composable</pre>
+                            <pre>private fun PreviewScreenInput(</pre>
+                            <pre>) {</pre>
+                            <pre>    InputMoneyRecordScreenBody(</pre>
+                            <pre>        uiState = MoneyRecordUiState(</pre>
+                            <pre>            time = getNowMillis(),</pre>
+                            <pre>            category = "食費",</pre>
+                            <pre>            memo = "コンビニ",</pre>
+                            <pre>            sign = -1,</pre>
+                            <pre>            input = "100"</pre>
+                            <pre>        )</pre>
+                            <pre>    )</pre>
+                            <pre>}</pre>
+                        </div>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">InputMoneyRecordScreenViewModel.kt</span><br>
+                            <pre>package com.sakura.money_recorder.ui.screen</pre>
+                            <pre><br></pre>
+                            <pre>import androidx.compose.runtime.getValue</pre>
+                            <pre>import androidx.compose.runtime.mutableStateOf</pre>
+                            <pre>import androidx.compose.runtime.setValue</pre>
+                            <pre>import androidx.lifecycle.ViewModel</pre>
+                            <pre>import com.sakura.money_recorder.data.MoneyRecordRepository</pre>
+                            <pre>import com.sakura.money_recorder.data.MoneyRecordUiState</pre>
+                            <pre>import com.sakura.money_recorder.data.toMoneyRecord</pre>
+                            <pre>import com.sakura.money_recorder.getNowMillis</pre>
+                            <pre><br></pre>
+                            <pre>class InputMoneyRecordScreenViewModel(</pre>
+                            <pre>    private val moneyRecordRepository: MoneyRecordRepository</pre>
+                            <pre>) : ViewModel() {</pre>
+                            <pre>    var moneyRecordUiState by mutableStateOf(MoneyRecordUiState()) //可変変数の定義</pre>
+                            <pre>        private set</pre>
+                            <pre><br></pre>
+                            <pre>    init { //初期化</pre>
+                            <pre>        moneyRecordUiState = MoneyRecordUiState(time = getNowMillis()) //時刻を現在時刻に設定</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre>    fun updateMoneyRecordUiState(newMoneyRecordUiState: MoneyRecordUiState) { //変更する際の関数</pre>
+                            <pre>        moneyRecordUiState = newMoneyRecordUiState</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre><br></pre>
+                            <pre>    suspend fun saveMoneyRecord() {</pre>
+                            <pre>        moneyRecordRepository.insertItem(moneyRecordUiState.toMoneyRecord())</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                        </div>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">TableByCategoryScreen.kt</span><br>
+                            <pre>package com.sakura.money_recorder.ui.screen</pre>
+                            <pre><br></pre>
+                            <pre>import androidx.compose.foundation.background</pre>
+                            <pre>import androidx.compose.foundation.clickable</pre>
+                            <pre>import androidx.compose.foundation.layout.Column</pre>
+                            <pre>import androidx.compose.foundation.layout.Row</pre>
+                            <pre>import androidx.compose.foundation.layout.Spacer</pre>
+                            <pre>import androidx.compose.foundation.layout.fillMaxWidth</pre>
+                            <pre>import androidx.compose.foundation.layout.height</pre>
+                            <pre>import androidx.compose.foundation.layout.padding</pre>
+                            <pre>import androidx.compose.foundation.layout.width</pre>
+                            <pre>import androidx.compose.foundation.lazy.LazyColumn</pre>
+                            <pre>import androidx.compose.foundation.lazy.items</pre>
+                            <pre>import androidx.compose.material.icons.Icons</pre>
+                            <pre>import androidx.compose.material.icons.filled.ChevronLeft</pre>
+                            <pre>import androidx.compose.material.icons.filled.ChevronRight</pre>
+                            <pre>import androidx.compose.material.icons.filled.ExpandMore</pre>
+                            <pre>import androidx.compose.material3.HorizontalDivider</pre>
+                            <pre>import androidx.compose.material3.Icon</pre>
+                            <pre>import androidx.compose.material3.IconButton</pre>
+                            <pre>import androidx.compose.material3.MaterialTheme</pre>
+                            <pre>import androidx.compose.material3.Scaffold</pre>
+                            <pre>import androidx.compose.material3.Text</pre>
+                            <pre>import androidx.compose.material3.VerticalDivider</pre>
+                            <pre>import androidx.compose.runtime.Composable</pre>
+                            <pre>import androidx.compose.runtime.collectAsState</pre>
+                            <pre>import androidx.compose.runtime.getValue</pre>
+                            <pre>import androidx.compose.runtime.mutableIntStateOf</pre>
+                            <pre>import androidx.compose.runtime.mutableStateOf</pre>
+                            <pre>import androidx.compose.runtime.remember</pre>
+                            <pre>import androidx.compose.runtime.setValue</pre>
+                            <pre>import androidx.compose.ui.Alignment</pre>
+                            <pre>import androidx.compose.ui.Modifier</pre>
+                            <pre>import androidx.compose.ui.tooling.preview.Preview</pre>
+                            <pre>import androidx.compose.ui.unit.dp</pre>
+                            <pre>import androidx.lifecycle.viewmodel.compose.viewModel</pre>
+                            <pre>import com.sakura.money_recorder.AppTopBar</pre>
+                            <pre>import com.sakura.money_recorder.AppViewModelProvider</pre>
+                            <pre>import com.sakura.money_recorder.MoneyRecordItem</pre>
+                            <pre>import com.sakura.money_recorder.data.MoneyRecordGroup</pre>
+                            <pre>import com.sakura.money_recorder.data.categoryList</pre>
+                            <pre>import com.sakura.money_recorder.data.moneyRecordGroupListForTest</pre>
+                            <pre>import com.sakura.money_recorder.formatYen</pre>
+                            <pre>import com.sakura.money_recorder.ui.navigation.NavigationDestination</pre>
+                            <pre><br></pre>
+                            <pre>object TableByCategoryScreenDestination : NavigationDestination {</pre>
+                            <pre>    override val route = "table_by_month"</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>@Composable</pre>
+                            <pre>fun TableByCategoryScreen(</pre>
+                            <pre>    viewModel: TableByCategoryScreenViewModel = viewModel(factory = AppViewModelProvider.Factory),</pre>
+                            <pre>    onBackButtonClicked: () -&gt; Unit = {},</pre>
+                            <pre>    onMoneyRecordClicked: (Int) -&gt; Unit = {},</pre>
+                            <pre>) {</pre>
+                            <pre>    val moneyRecordGroupMonthList by viewModel.moneyRecordGroupMonthList.collectAsState()</pre>
+                            <pre><br></pre>
+                            <pre>    TableByCategoryScreenBody(</pre>
+                            <pre>        moneyRecordGroupMonthList = moneyRecordGroupMonthList.sortedBy { it.name },</pre>
+                            <pre>        onBackButtonClicked = onBackButtonClicked,</pre>
+                            <pre>        onMoneyRecordClicked = onMoneyRecordClicked</pre>
+                            <pre>    )</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>@Composable</pre>
+                            <pre>private fun TableByCategoryScreenBody(</pre>
+                            <pre>    moneyRecordGroupMonthList: List&lt;MoneyRecordGroup&gt; = moneyRecordGroupListForTest.sortedBy { it.name },</pre>
+                            <pre>    onBackButtonClicked: () -&gt; Unit = {},</pre>
+                            <pre>    onMoneyRecordClicked: (Int) -&gt; Unit = {},</pre>
+                            <pre>) {</pre>
+                            <pre>    Scaffold(</pre>
+                            <pre>        topBar = {</pre>
+                            <pre>            AppTopBar(</pre>
+                            <pre>                titleText = "カテゴリ別記録",</pre>
+                            <pre>                canBack = true,</pre>
+                            <pre>                onBackButtonClicked = onBackButtonClicked</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>    ) { innerPadding -&gt;</pre>
+                            <pre>        Column(Modifier.padding(innerPadding)) {</pre>
+                            <pre>            if (moneyRecordGroupMonthList.isEmpty()) return@Column</pre>
+                            <pre><br></pre>
+                            <pre>            var page by remember { mutableIntStateOf(0) }</pre>
+                            <pre>            val grossPage = moneyRecordGroupMonthList.size - 1 - page</pre>
+                            <pre>            val nowMonthGroup = moneyRecordGroupMonthList[grossPage]</pre>
+                            <pre>            Column(</pre>
+                            <pre>                Modifier.padding(16.dp)</pre>
+                            <pre>            ) {</pre>
+                            <pre>                Row(</pre>
+                            <pre>                    Modifier</pre>
+                            <pre>                        .fillMaxWidth()</pre>
+                            <pre>                        .height(50.dp),</pre>
+                            <pre>                    verticalAlignment = Alignment.CenterVertically</pre>
+                            <pre>                ) {</pre>
+                            <pre>                    if (grossPage != 0)</pre>
+                            <pre>                        IconButton( //戻る</pre>
+                            <pre>                            onClick = { page += 1 }</pre>
+                            <pre>                        ) {</pre>
+                            <pre>                            Icon(</pre>
+                            <pre>                                imageVector = Icons.Filled.ChevronLeft,</pre>
+                            <pre>                                contentDescription = null</pre>
+                            <pre>                            )</pre>
+                            <pre>                        } else {</pre>
+                            <pre>                        Spacer(Modifier.width(48.dp))</pre>
+                            <pre>                    }</pre>
+                            <pre>                    Spacer(Modifier.weight(1f))</pre>
+                            <pre>                    Text(</pre>
+                            <pre>                        text = nowMonthGroup.name,</pre>
+                            <pre>                        style = MaterialTheme.typography.headlineSmall</pre>
+                            <pre>                    )</pre>
+                            <pre>                    Spacer(Modifier.weight(1f))</pre>
+                            <pre>                    if (grossPage != moneyRecordGroupMonthList.size - 1)</pre>
+                            <pre>                        IconButton( //進む</pre>
+                            <pre>                            onClick = { page -= 1 }</pre>
+                            <pre>                        ) {</pre>
+                            <pre>                            Icon(</pre>
+                            <pre>                                imageVector = Icons.Filled.ChevronRight,</pre>
+                            <pre>                                contentDescription = null</pre>
+                            <pre>                            )</pre>
+                            <pre>                        } else {</pre>
+                            <pre>                        Spacer(Modifier.width(48.dp))</pre>
+                            <pre>                    }</pre>
+                            <pre>                }</pre>
+                            <pre>                HorizontalDivider()</pre>
+                            <pre>                Row(Modifier.height(64.dp)) {</pre>
+                            <pre>                    Column(Modifier.weight(1f)) {</pre>
+                            <pre>                        Text("収入")</pre>
+                            <pre>                        Column(</pre>
+                            <pre>                            modifier = Modifier</pre>
+                            <pre>                                .fillMaxWidth(),</pre>
+                            <pre>                            horizontalAlignment = Alignment.CenterHorizontally</pre>
+                            <pre>                        ) {</pre>
+                            <pre>                            Text(</pre>
+                            <pre>                                text = "+${</pre>
+                            <pre>                                    formatYen(nowMonthGroup.moneyRecordList.filter { it.amount &gt;= 0 }</pre>
+                            <pre>                                        .sumOf { it.amount })</pre>
+                            <pre>                                }",</pre>
+                            <pre>                                style = MaterialTheme.typography.headlineMedium</pre>
+                            <pre>                            )</pre>
+                            <pre>                        }</pre>
+                            <pre>                    }</pre>
+                            <pre>                    VerticalDivider(Modifier.padding(2.dp))</pre>
+                            <pre>                    Column(Modifier.weight(1f)) {</pre>
+                            <pre>                        Text("支出")</pre>
+                            <pre>                        Column(</pre>
+                            <pre>                            modifier = Modifier</pre>
+                            <pre>                                .fillMaxWidth(),</pre>
+                            <pre>                            horizontalAlignment = Alignment.CenterHorizontally</pre>
+                            <pre>                        ) {</pre>
+                            <pre>                            Text(</pre>
+                            <pre>                                text = formatYen(nowMonthGroup.moneyRecordList.filter { it.amount &lt;= 0 }</pre>
+                            <pre>                                    .sumOf { it.amount }),</pre>
+                            <pre>                                style = MaterialTheme.typography.headlineMedium</pre>
+                            <pre>                            )</pre>
+                            <pre>                        }</pre>
+                            <pre>                    }</pre>
+                            <pre>                }</pre>
+                            <pre>                HorizontalDivider()</pre>
+                            <pre><br></pre>
+                            <pre>            }</pre>
+                            <pre>            Column {</pre>
+                            <pre>                LazyColumn {</pre>
+                            <pre>                    items(</pre>
+                            <pre>                        items = categoryList,</pre>
+                            <pre>                        key = { it.name }</pre>
+                            <pre>                    ) { category -&gt;</pre>
+                            <pre>                        var expanded by remember { mutableStateOf(false) }</pre>
+                            <pre>                        val recordsFiltered =</pre>
+                            <pre>                            nowMonthGroup.moneyRecordList.filter { it.category == category.name }</pre>
+                            <pre>                        Column(</pre>
+                            <pre>                            Modifier.clickable(</pre>
+                            <pre>                                onClick = { expanded = !expanded }</pre>
+                            <pre>                            )</pre>
+                            <pre>                        ) {</pre>
+                            <pre>                            Row(</pre>
+                            <pre>                                modifier = Modifier</pre>
+                            <pre>                                    .fillMaxWidth()</pre>
+                            <pre>                                    .background(MaterialTheme.colorScheme.surfaceContainer)</pre>
+                            <pre>                                    .padding(vertical = 4.dp, horizontal = 16.dp),</pre>
+                            <pre>                                verticalAlignment = Alignment.CenterVertically,</pre>
+                            <pre>                            ) {</pre>
+                            <pre>                                Icon(</pre>
+                            <pre>                                    imageVector = category.image,</pre>
+                            <pre>                                    contentDescription = null</pre>
+                            <pre>                                )</pre>
+                            <pre>                                Spacer(Modifier.width(4.dp))</pre>
+                            <pre>                                Text(category.name)</pre>
+                            <pre>                                Spacer(Modifier.weight(1f))</pre>
+                            <pre>                                Text(</pre>
+                            <pre>                                    text = formatYen(recordsFiltered.sumOf { it.amount }),</pre>
+                            <pre>                                    style = MaterialTheme.typography.bodyLarge,</pre>
+                            <pre>                                )</pre>
+                            <pre>                                Spacer(Modifier.width(4.dp))</pre>
+                            <pre>                                if (!expanded)</pre>
+                            <pre>                                    Icon(</pre>
+                            <pre>                                        imageVector = Icons.Filled.ExpandMore,</pre>
+                            <pre>                                        contentDescription = null</pre>
+                            <pre>                                    )</pre>
+                            <pre>                                else</pre>
+                            <pre>                                    Spacer(Modifier.width(32.dp))</pre>
+                            <pre>                            }</pre>
+                            <pre>                        }</pre>
+                            <pre><br></pre>
+                            <pre>                        if (expanded) {</pre>
+                            <pre>                            Column(</pre>
+                            <pre>                                Modifier.padding(horizontal = 16.dp)</pre>
+                            <pre>                            ) {</pre>
+                            <pre>                                recordsFiltered.forEach { moneyRecord -&gt;</pre>
+                            <pre>                                    MoneyRecordItem(</pre>
+                            <pre>                                        moneyRecord = moneyRecord,</pre>
+                            <pre>                                        onClicked = { onMoneyRecordClicked(moneyRecord.id) }</pre>
+                            <pre>                                    )</pre>
+                            <pre>                                }</pre>
+                            <pre>                            }</pre>
+                            <pre><br></pre>
+                            <pre>                        }</pre>
+                            <pre>                        Spacer(Modifier.height(8.dp))</pre>
+                            <pre>                    }</pre>
+                            <pre>                }</pre>
+                            <pre><br></pre>
+                            <pre>            }</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>//Preview ------------------------------------------------------------------------------------------</pre>
+                            <pre>@Preview</pre>
+                            <pre>@Composable</pre>
+                            <pre>fun ScreenPreviewCategory() {</pre>
+                            <pre>    TableByCategoryScreenBody()</pre>
+                            <pre>}</pre>
+                        </div>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">TableByCategoryScreenViewModel.kt</span><br>
+                            <pre>package com.sakura.money_recorder.ui.screen</pre>
+                            <pre><br></pre>
+                            <pre>import androidx.lifecycle.ViewModel</pre>
+                            <pre>import androidx.lifecycle.viewModelScope</pre>
+                            <pre>import com.sakura.money_recorder.convertMillisToYearMonth</pre>
+                            <pre>import com.sakura.money_recorder.data.MoneyRecordGroup</pre>
+                            <pre>import com.sakura.money_recorder.data.MoneyRecordRepository</pre>
+                            <pre>import kotlinx.coroutines.flow.SharingStarted</pre>
+                            <pre>import kotlinx.coroutines.flow.StateFlow</pre>
+                            <pre>import kotlinx.coroutines.flow.map</pre>
+                            <pre>import kotlinx.coroutines.flow.stateIn</pre>
+                            <pre><br></pre>
+                            <pre>class TableByCategoryScreenViewModel(</pre>
+                            <pre>    private val moneyRecordRepository: MoneyRecordRepository</pre>
+                            <pre>) : ViewModel() {</pre>
+                            <pre>    val moneyRecordGroupMonthList: StateFlow&lt;List&lt;MoneyRecordGroup&gt;&gt; =</pre>
+                            <pre>        moneyRecordRepository.getAllItemsStream().map { moneyRecordList -&gt;</pre>
+                            <pre>            moneyRecordList</pre>
+                            <pre>                .groupBy { convertMillisToYearMonth(it.time) }</pre>
+                            <pre>                .map {</pre>
+                            <pre>                    MoneyRecordGroup(</pre>
+                            <pre>                        name = it.key,</pre>
+                            <pre>                        moneyRecordList = it.value</pre>
+                            <pre>                    )</pre>
+                            <pre>                }</pre>
+                            <pre>        }.stateIn(</pre>
+                            <pre>            scope = viewModelScope,</pre>
+                            <pre>            started = SharingStarted.WhileSubscribed(5000),</pre>
+                            <pre>            initialValue = listOf()</pre>
+                            <pre>        )</pre>
+                            <pre>}</pre>
+                        </div>
+
+                        <h3 id="06">
+                            ./ui/theme
+                        </h3>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">_PreviewMaterialTheme.kt</span><br>
+                            <pre>package com.sakura.money_recorder.ui.theme</pre>
+                            <pre><br></pre>
+                            <pre>import androidx.compose.foundation.background</pre>
+                            <pre>import androidx.compose.foundation.gestures.Orientation</pre>
+                            <pre>import androidx.compose.foundation.gestures.scrollable</pre>
+                            <pre>import androidx.compose.foundation.layout.Column</pre>
+                            <pre>import androidx.compose.foundation.layout.Row</pre>
+                            <pre>import androidx.compose.foundation.layout.padding</pre>
+                            <pre>import androidx.compose.foundation.rememberScrollState</pre>
+                            <pre>import androidx.compose.material3.MaterialTheme</pre>
+                            <pre>import androidx.compose.material3.Text</pre>
+                            <pre>import androidx.compose.runtime.Composable</pre>
+                            <pre>import androidx.compose.ui.Alignment</pre>
+                            <pre>import androidx.compose.ui.Modifier</pre>
+                            <pre>import androidx.compose.ui.graphics.Color</pre>
+                            <pre>import androidx.compose.ui.tooling.preview.Preview</pre>
+                            <pre>import androidx.compose.ui.unit.dp</pre>
+                            <pre><br></pre>
+                            <pre>@Preview(showBackground = true)</pre>
+                            <pre>@Composable</pre>
+                            <pre>private fun MaterialThemePreview() {</pre>
+                            <pre>    MoneyRecorderTheme {</pre>
+                            <pre>        Column(</pre>
+                            <pre>            modifier = Modifier.scrollable(</pre>
+                            <pre>                rememberScrollState(),</pre>
+                            <pre>                orientation = Orientation.Vertical</pre>
+                            <pre>            )</pre>
+                            <pre>        ) {</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "displaySmall",</pre>
+                            <pre>                style = MaterialTheme.typography.displaySmall</pre>
+                            <pre>            )</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "displayMedium",</pre>
+                            <pre>                style = MaterialTheme.typography.displayMedium</pre>
+                            <pre>            )</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "displayLarge",</pre>
+                            <pre>                style = MaterialTheme.typography.displayLarge</pre>
+                            <pre>            )</pre>
+                            <pre><br></pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "headlineSmall",</pre>
+                            <pre>                style = MaterialTheme.typography.headlineSmall</pre>
+                            <pre>            )</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "headlineMedium",</pre>
+                            <pre>                style = MaterialTheme.typography.headlineMedium</pre>
+                            <pre>            )</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "headlineLarge",</pre>
+                            <pre>                style = MaterialTheme.typography.headlineLarge</pre>
+                            <pre>            )</pre>
+                            <pre><br></pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "titleSmall",</pre>
+                            <pre>                style = MaterialTheme.typography.titleSmall</pre>
+                            <pre>            )</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "titleMedium",</pre>
+                            <pre>                style = MaterialTheme.typography.titleMedium</pre>
+                            <pre>            )</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "titleLarge",</pre>
+                            <pre>                style = MaterialTheme.typography.titleLarge</pre>
+                            <pre>            )</pre>
+                            <pre><br></pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "bodySmall",</pre>
+                            <pre>                style = MaterialTheme.typography.bodySmall</pre>
+                            <pre>            )</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "bodyMedium",</pre>
+                            <pre>                style = MaterialTheme.typography.bodyMedium</pre>
+                            <pre>            )</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "bodyLarge",</pre>
+                            <pre>                style = MaterialTheme.typography.bodyLarge</pre>
+                            <pre>            )</pre>
+                            <pre><br></pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "labelSmall",</pre>
+                            <pre>                style = MaterialTheme.typography.labelSmall</pre>
+                            <pre>            )</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "labelMedium",</pre>
+                            <pre>                style = MaterialTheme.typography.labelMedium</pre>
+                            <pre>            )</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = "labelLarge",</pre>
+                            <pre>                style = MaterialTheme.typography.labelLarge</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>@Preview(showBackground = true)</pre>
+                            <pre>@Composable</pre>
+                            <pre>private fun ColorPreview() {</pre>
+                            <pre>    MoneyRecorderTheme {</pre>
+                            <pre>        // --- 色のプレビュー ---</pre>
+                            <pre>        Column {</pre>
+                            <pre>            Row {</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "primary",</pre>
+                            <pre>                    MaterialTheme.colorScheme.primary,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onPrimary</pre>
+                            <pre>                )</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "secondary",</pre>
+                            <pre>                    MaterialTheme.colorScheme.secondary,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onSecondary</pre>
+                            <pre>                )</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "tertiary",</pre>
+                            <pre>                    MaterialTheme.colorScheme.tertiary,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onTertiary</pre>
+                            <pre>                )</pre>
+                            <pre>            }</pre>
+                            <pre>            Row {</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "primaryC",</pre>
+                            <pre>                    MaterialTheme.colorScheme.primaryContainer,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onPrimaryContainer</pre>
+                            <pre>                )</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "secondaryC",</pre>
+                            <pre>                    MaterialTheme.colorScheme.secondaryContainer,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onSecondaryContainer</pre>
+                            <pre>                )</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "tertiaryC",</pre>
+                            <pre>                    MaterialTheme.colorScheme.tertiaryContainer,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onTertiaryContainer</pre>
+                            <pre>                )</pre>
+                            <pre>            }</pre>
+                            <pre><br></pre>
+                            <pre>            Row {</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "error",</pre>
+                            <pre>                    MaterialTheme.colorScheme.error,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onError</pre>
+                            <pre>                )</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "errorC",</pre>
+                            <pre>                    MaterialTheme.colorScheme.errorContainer,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onErrorContainer</pre>
+                            <pre>                )</pre>
+                            <pre>            }</pre>
+                            <pre><br></pre>
+                            <pre>            Row {</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "surface",</pre>
+                            <pre>                    MaterialTheme.colorScheme.surface,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onSurface</pre>
+                            <pre>                )</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "surfaceVariant",</pre>
+                            <pre>                    MaterialTheme.colorScheme.surfaceVariant,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onSurfaceVariant</pre>
+                            <pre>                )</pre>
+                            <pre>            }</pre>
+                            <pre><br></pre>
+                            <pre>            Row {</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "lowest",</pre>
+                            <pre>                    MaterialTheme.colorScheme.surfaceContainerLowest,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onSurface</pre>
+                            <pre>                )</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "low",</pre>
+                            <pre>                    MaterialTheme.colorScheme.surfaceContainerLow,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onSurface</pre>
+                            <pre>                )</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "surfaceC",</pre>
+                            <pre>                    MaterialTheme.colorScheme.surfaceContainer,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onSurface</pre>
+                            <pre>                )</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "high",</pre>
+                            <pre>                    MaterialTheme.colorScheme.surfaceContainerHigh,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onSurface</pre>
+                            <pre>                )</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "highest",</pre>
+                            <pre>                    MaterialTheme.colorScheme.surfaceContainerHighest,</pre>
+                            <pre>                    MaterialTheme.colorScheme.onSurface</pre>
+                            <pre>                )</pre>
+                            <pre>            }</pre>
+                            <pre><br></pre>
+                            <pre>            Row {</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "Inverse",</pre>
+                            <pre>                    MaterialTheme.colorScheme.inverseSurface,</pre>
+                            <pre>                    MaterialTheme.colorScheme.inverseOnSurface</pre>
+                            <pre>                )</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "InverseP",</pre>
+                            <pre>                    MaterialTheme.colorScheme.inverseSurface,</pre>
+                            <pre>                    MaterialTheme.colorScheme.inversePrimary</pre>
+                            <pre>                )</pre>
+                            <pre>            }</pre>
+                            <pre><br></pre>
+                            <pre>            Row {</pre>
+                            <pre><br></pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "outline",</pre>
+                            <pre>                    MaterialTheme.colorScheme.surface,</pre>
+                            <pre>                    MaterialTheme.colorScheme.outline</pre>
+                            <pre>                )</pre>
+                            <pre><br></pre>
+                            <pre>                //HorizontalDividerなど</pre>
+                            <pre>                ColorPreviewWithOn(</pre>
+                            <pre>                    "outline",</pre>
+                            <pre>                    MaterialTheme.colorScheme.surface,</pre>
+                            <pre>                    MaterialTheme.colorScheme.outlineVariant</pre>
+                            <pre>                )</pre>
+                            <pre>            }</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>@Composable</pre>
+                            <pre>private fun ColorPreviewWithOn(text: String, color: Color, onColor: Color) {</pre>
+                            <pre>    Column(</pre>
+                            <pre>        modifier = Modifier</pre>
+                            <pre>            .background(color)</pre>
+                            <pre>            .padding(8.dp),</pre>
+                            <pre>        horizontalAlignment = Alignment.CenterHorizontally,</pre>
+                            <pre>    ) {</pre>
+                            <pre>        Text(</pre>
+                            <pre>            text = text,</pre>
+                            <pre>            color = onColor</pre>
+                            <pre>        )</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                        </div>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">Color.kt</span><br>
+                            <pre>package com.sakura.money_recorder.ui.theme //ここを自分仕様に</pre>
+                            <pre>import androidx.compose.ui.graphics.Color</pre>
+                            <pre><br></pre>
+                            <pre>val primaryLight = Color(0xFF415F91)</pre>
+                            <pre>val onPrimaryLight = Color(0xFFFFFFFF)</pre>
+                            <pre>val primaryContainerLight = Color(0xFFD6E3FF)</pre>
+                            <pre>val onPrimaryContainerLight = Color(0xFF284777)</pre>
+                            <pre>val secondaryLight = Color(0xFF565F71)</pre>
+                            <pre>val onSecondaryLight = Color(0xFFFFFFFF)</pre>
+                            <pre>val secondaryContainerLight = Color(0xFFDAE2F9)</pre>
+                            <pre>val onSecondaryContainerLight = Color(0xFF3E4759)</pre>
+                            <pre>val tertiaryLight = Color(0xFF705575)</pre>
+                            <pre>val onTertiaryLight = Color(0xFFFFFFFF)</pre>
+                            <pre>val tertiaryContainerLight = Color(0xFFFAD8FD)</pre>
+                            <pre>val onTertiaryContainerLight = Color(0xFF573E5C)</pre>
+                            <pre>val errorLight = Color(0xFFBA1A1A)</pre>
+                            <pre>val onErrorLight = Color(0xFFFFFFFF)</pre>
+                            <pre>val errorContainerLight = Color(0xFFFFDAD6)</pre>
+                            <pre>val onErrorContainerLight = Color(0xFF93000A)</pre>
+                            <pre>val backgroundLight = Color(0xFFF9F9FF)</pre>
+                            <pre>val onBackgroundLight = Color(0xFF191C20)</pre>
+                            <pre>val surfaceLight = Color(0xFFF9F9FF)</pre>
+                            <pre>val onSurfaceLight = Color(0xFF191C20)</pre>
+                            <pre>val surfaceVariantLight = Color(0xFFE0E2EC)</pre>
+                            <pre>val onSurfaceVariantLight = Color(0xFF44474E)</pre>
+                            <pre>val outlineLight = Color(0xFF74777F)</pre>
+                            <pre>val outlineVariantLight = Color(0xFFC4C6D0)</pre>
+                            <pre>val scrimLight = Color(0xFF000000)</pre>
+                            <pre>val inverseSurfaceLight = Color(0xFF2E3036)</pre>
+                            <pre>val inverseOnSurfaceLight = Color(0xFFF0F0F7)</pre>
+                            <pre>val inversePrimaryLight = Color(0xFFAAC7FF)</pre>
+                            <pre>val surfaceDimLight = Color(0xFFD9D9E0)</pre>
+                            <pre>val surfaceBrightLight = Color(0xFFF9F9FF)</pre>
+                            <pre>val surfaceContainerLowestLight = Color(0xFFFFFFFF)</pre>
+                            <pre>val surfaceContainerLowLight = Color(0xFFF3F3FA)</pre>
+                            <pre>val surfaceContainerLight = Color(0xFFEDEDF4)</pre>
+                            <pre>val surfaceContainerHighLight = Color(0xFFE7E8EE)</pre>
+                            <pre>val surfaceContainerHighestLight = Color(0xFFE2E2E9)</pre>
+                            <pre><br></pre>
+                            <pre>val primaryDark = Color(0xFFAAC7FF)</pre>
+                            <pre>val onPrimaryDark = Color(0xFF0A305F)</pre>
+                            <pre>val primaryContainerDark = Color(0xFF284777)</pre>
+                            <pre>val onPrimaryContainerDark = Color(0xFFD6E3FF)</pre>
+                            <pre>val secondaryDark = Color(0xFFBEC6DC)</pre>
+                            <pre>val onSecondaryDark = Color(0xFF283141)</pre>
+                            <pre>val secondaryContainerDark = Color(0xFF3E4759)</pre>
+                            <pre>val onSecondaryContainerDark = Color(0xFFDAE2F9)</pre>
+                            <pre>val tertiaryDark = Color(0xFFDDBCE0)</pre>
+                            <pre>val onTertiaryDark = Color(0xFF3F2844)</pre>
+                            <pre>val tertiaryContainerDark = Color(0xFF573E5C)</pre>
+                            <pre>val onTertiaryContainerDark = Color(0xFFFAD8FD)</pre>
+                            <pre>val errorDark = Color(0xFFFFB4AB)</pre>
+                            <pre>val onErrorDark = Color(0xFF690005)</pre>
+                            <pre>val errorContainerDark = Color(0xFF93000A)</pre>
+                            <pre>val onErrorContainerDark = Color(0xFFFFDAD6)</pre>
+                            <pre>val backgroundDark = Color(0xFF111318)</pre>
+                            <pre>val onBackgroundDark = Color(0xFFE2E2E9)</pre>
+                            <pre>val surfaceDark = Color(0xFF111318)</pre>
+                            <pre>val onSurfaceDark = Color(0xFFE2E2E9)</pre>
+                            <pre>val surfaceVariantDark = Color(0xFF44474E)</pre>
+                            <pre>val onSurfaceVariantDark = Color(0xFFC4C6D0)</pre>
+                            <pre>val outlineDark = Color(0xFF8E9099)</pre>
+                            <pre>val outlineVariantDark = Color(0xFF44474E)</pre>
+                            <pre>val scrimDark = Color(0xFF000000)</pre>
+                            <pre>val inverseSurfaceDark = Color(0xFFE2E2E9)</pre>
+                            <pre>val inverseOnSurfaceDark = Color(0xFF2E3036)</pre>
+                            <pre>val inversePrimaryDark = Color(0xFF415F91)</pre>
+                            <pre>val surfaceDimDark = Color(0xFF111318)</pre>
+                            <pre>val surfaceBrightDark = Color(0xFF37393E)</pre>
+                            <pre>val surfaceContainerLowestDark = Color(0xFF0C0E13)</pre>
+                            <pre>val surfaceContainerLowDark = Color(0xFF191C20)</pre>
+                            <pre>val surfaceContainerDark = Color(0xFF1D2024)</pre>
+                            <pre>val surfaceContainerHighDark = Color(0xFF282A2F)</pre>
+                            <pre>val surfaceContainerHighestDark = Color(0xFF33353A)</pre>
+                        </div>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">Theme.kt</span><br>
+                            <pre>package com.sakura.money_recorder.ui.theme</pre>
+                            <pre>import android.app.Activity</pre>
+                            <pre>import android.os.Build</pre>
+                            <pre>import androidx.compose.foundation.isSystemInDarkTheme</pre>
+                            <pre>import androidx.compose.material3.MaterialTheme</pre>
+                            <pre>import androidx.compose.material3.lightColorScheme</pre>
+                            <pre>import androidx.compose.material3.darkColorScheme</pre>
+                            <pre>import androidx.compose.material3.dynamicDarkColorScheme</pre>
+                            <pre>import androidx.compose.material3.dynamicLightColorScheme</pre>
+                            <pre>import androidx.compose.material3.Typography</pre>
+                            <pre>import androidx.compose.runtime.Composable</pre>
+                            <pre>import androidx.compose.runtime.Immutable</pre>
+                            <pre>import androidx.compose.ui.graphics.Color</pre>
+                            <pre>import androidx.compose.ui.graphics.toArgb</pre>
+                            <pre>import androidx.compose.ui.platform.LocalContext</pre>
+                            <pre><br></pre>
+                            <pre>private val lightScheme = lightColorScheme(</pre>
+                            <pre>    primary = primaryLight,</pre>
+                            <pre>    onPrimary = onPrimaryLight,</pre>
+                            <pre>    primaryContainer = primaryContainerLight,</pre>
+                            <pre>    onPrimaryContainer = onPrimaryContainerLight,</pre>
+                            <pre>    secondary = secondaryLight,</pre>
+                            <pre>    onSecondary = onSecondaryLight,</pre>
+                            <pre>    secondaryContainer = secondaryContainerLight,</pre>
+                            <pre>    onSecondaryContainer = onSecondaryContainerLight,</pre>
+                            <pre>    tertiary = tertiaryLight,</pre>
+                            <pre>    onTertiary = onTertiaryLight,</pre>
+                            <pre>    tertiaryContainer = tertiaryContainerLight,</pre>
+                            <pre>    onTertiaryContainer = onTertiaryContainerLight,</pre>
+                            <pre>    error = errorLight,</pre>
+                            <pre>    onError = onErrorLight,</pre>
+                            <pre>    errorContainer = errorContainerLight,</pre>
+                            <pre>    onErrorContainer = onErrorContainerLight,</pre>
+                            <pre>    background = backgroundLight,</pre>
+                            <pre>    onBackground = onBackgroundLight,</pre>
+                            <pre>    surface = surfaceLight,</pre>
+                            <pre>    onSurface = onSurfaceLight,</pre>
+                            <pre>    surfaceVariant = surfaceVariantLight,</pre>
+                            <pre>    onSurfaceVariant = onSurfaceVariantLight,</pre>
+                            <pre>    outline = outlineLight,</pre>
+                            <pre>    outlineVariant = outlineVariantLight,</pre>
+                            <pre>    scrim = scrimLight,</pre>
+                            <pre>    inverseSurface = inverseSurfaceLight,</pre>
+                            <pre>    inverseOnSurface = inverseOnSurfaceLight,</pre>
+                            <pre>    inversePrimary = inversePrimaryLight,</pre>
+                            <pre>    surfaceDim = surfaceDimLight,</pre>
+                            <pre>    surfaceBright = surfaceBrightLight,</pre>
+                            <pre>    surfaceContainerLowest = surfaceContainerLowestLight,</pre>
+                            <pre>    surfaceContainerLow = surfaceContainerLowLight,</pre>
+                            <pre>    surfaceContainer = surfaceContainerLight,</pre>
+                            <pre>    surfaceContainerHigh = surfaceContainerHighLight,</pre>
+                            <pre>    surfaceContainerHighest = surfaceContainerHighestLight,</pre>
+                            <pre>)</pre>
+                            <pre><br></pre>
+                            <pre>private val darkScheme = darkColorScheme(</pre>
+                            <pre>    primary = primaryDark,</pre>
+                            <pre>    onPrimary = onPrimaryDark,</pre>
+                            <pre>    primaryContainer = primaryContainerDark,</pre>
+                            <pre>    onPrimaryContainer = onPrimaryContainerDark,</pre>
+                            <pre>    secondary = secondaryDark,</pre>
+                            <pre>    onSecondary = onSecondaryDark,</pre>
+                            <pre>    secondaryContainer = secondaryContainerDark,</pre>
+                            <pre>    onSecondaryContainer = onSecondaryContainerDark,</pre>
+                            <pre>    tertiary = tertiaryDark,</pre>
+                            <pre>    onTertiary = onTertiaryDark,</pre>
+                            <pre>    tertiaryContainer = tertiaryContainerDark,</pre>
+                            <pre>    onTertiaryContainer = onTertiaryContainerDark,</pre>
+                            <pre>    error = errorDark,</pre>
+                            <pre>    onError = onErrorDark,</pre>
+                            <pre>    errorContainer = errorContainerDark,</pre>
+                            <pre>    onErrorContainer = onErrorContainerDark,</pre>
+                            <pre>    background = backgroundDark,</pre>
+                            <pre>    onBackground = onBackgroundDark,</pre>
+                            <pre>    surface = surfaceDark,</pre>
+                            <pre>    onSurface = onSurfaceDark,</pre>
+                            <pre>    surfaceVariant = surfaceVariantDark,</pre>
+                            <pre>    onSurfaceVariant = onSurfaceVariantDark,</pre>
+                            <pre>    outline = outlineDark,</pre>
+                            <pre>    outlineVariant = outlineVariantDark,</pre>
+                            <pre>    scrim = scrimDark,</pre>
+                            <pre>    inverseSurface = inverseSurfaceDark,</pre>
+                            <pre>    inverseOnSurface = inverseOnSurfaceDark,</pre>
+                            <pre>    inversePrimary = inversePrimaryDark,</pre>
+                            <pre>    surfaceDim = surfaceDimDark,</pre>
+                            <pre>    surfaceBright = surfaceBrightDark,</pre>
+                            <pre>    surfaceContainerLowest = surfaceContainerLowestDark,</pre>
+                            <pre>    surfaceContainerLow = surfaceContainerLowDark,</pre>
+                            <pre>    surfaceContainer = surfaceContainerDark,</pre>
+                            <pre>    surfaceContainerHigh = surfaceContainerHighDark,</pre>
+                            <pre>    surfaceContainerHighest = surfaceContainerHighestDark,</pre>
+                            <pre>)</pre>
+                            <pre><br></pre>
+                            <pre>@Immutable</pre>
+                            <pre>data class ColorFamily(</pre>
+                            <pre>    val color: Color,</pre>
+                            <pre>    val onColor: Color,</pre>
+                            <pre>    val colorContainer: Color,</pre>
+                            <pre>    val onColorContainer: Color</pre>
+                            <pre>)</pre>
+                            <pre><br></pre>
+                            <pre>val unspecified_scheme = ColorFamily(</pre>
+                            <pre>    Color.Unspecified, Color.Unspecified, Color.Unspecified, Color.Unspecified</pre>
+                            <pre>)</pre>
+                            <pre><br></pre>
+                            <pre>@Composable</pre>
+                            <pre>fun MoneyRecorderTheme(</pre>
+                            <pre>    darkTheme: Boolean = isSystemInDarkTheme(),</pre>
+                            <pre>    // Dynamic color is available on Android 12+</pre>
+                            <pre>    dynamicColor: Boolean = true,</pre>
+                            <pre>    content: @Composable() () -&gt; Unit</pre>
+                            <pre>) {</pre>
+                            <pre>    val colorScheme = when {</pre>
+                            <pre>        dynamicColor && Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.S -&gt; {</pre>
+                            <pre>            val context = LocalContext.current</pre>
+                            <pre>            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)</pre>
+                            <pre>        }</pre>
+                            <pre><br></pre>
+                            <pre>        darkTheme -&gt; darkScheme</pre>
+                            <pre>        else -&gt; lightScheme</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre>    MaterialTheme(</pre>
+                            <pre>        colorScheme = colorScheme,</pre>
+                            <pre>        typography = AppTypography,</pre>
+                            <pre>        content = content</pre>
+                            <pre>    )</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                        </div>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">Type.kt</span><br>
+                            <pre>package com.sakura.money_recorder.ui.theme</pre>
+                            <pre><br></pre>
+                            <pre>import androidx.compose.material3.Typography</pre>
+                            <pre>import androidx.compose.ui.text.TextStyle</pre>
+                            <pre>import androidx.compose.ui.text.font.FontFamily</pre>
+                            <pre>import androidx.compose.ui.text.font.FontWeight</pre>
+                            <pre>import androidx.compose.ui.unit.sp</pre>
+                            <pre><br></pre>
+                            <pre>val AppTypography = Typography(</pre>
+                            <pre>//    // 例：大きな見出し用のスタイル</pre>
+                            <pre>//    displayLarge = TextStyle(</pre>
+                            <pre>//        fontFamily = FontFamily.Default, // デフォルトフォントを使用</pre>
+                            <pre>//        fontWeight = FontWeight.Normal,  // 通常の太さ</pre>
+                            <pre>//        fontSize = 120.sp,                // フォントサイズ</pre>
+                            <pre>//        lineHeight = 64.sp,              // 行の高さ</pre>
+                            <pre>//        letterSpacing = (-0.25).sp       // 文字間隔</pre>
+                            <pre>//    )</pre>
+                            <pre>)</pre>
+                        </div>
+
+                        <h3 id="07">
+                            ./
+                        </h3>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">AppViewModelProvider.kt</span><br>
+                            <pre>package com.sakura.money_recorder</pre>
+                            <pre><br></pre>
+                            <pre>import androidx.lifecycle.ViewModelProvider</pre>
+                            <pre>import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory</pre>
+                            <pre>import androidx.lifecycle.createSavedStateHandle</pre>
+                            <pre>import androidx.lifecycle.viewmodel.CreationExtras</pre>
+                            <pre>import androidx.lifecycle.viewmodel.initializer</pre>
+                            <pre>import androidx.lifecycle.viewmodel.viewModelFactory</pre>
+                            <pre>import com.sakura.money_recorder.ui.screen.EditMoneyRecordScreenViewModel</pre>
+                            <pre>import com.sakura.money_recorder.ui.screen.HomeScreenViewModel</pre>
+                            <pre>import com.sakura.money_recorder.ui.screen.InputMoneyRecordScreenViewModel</pre>
+                            <pre>import com.sakura.money_recorder.ui.screen.TableByCategoryScreenViewModel</pre>
+                            <pre><br></pre>
+                            <pre>object AppViewModelProvider {</pre>
+                            <pre>    val Factory: ViewModelProvider.Factory = viewModelFactory {</pre>
+                            <pre>        initializer {</pre>
+                            <pre>            HomeScreenViewModel(</pre>
+                            <pre>                moneyRecordRepository = moneyRecorderApplication().container.moneyRecordRepository</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>        initializer {</pre>
+                            <pre>            InputMoneyRecordScreenViewModel(</pre>
+                            <pre>                moneyRecordRepository = moneyRecorderApplication().container.moneyRecordRepository</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>        initializer {</pre>
+                            <pre>            EditMoneyRecordScreenViewModel(</pre>
+                            <pre>                this.createSavedStateHandle(),</pre>
+                            <pre>                moneyRecordRepository = moneyRecorderApplication().container.moneyRecordRepository</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>        initializer { //カテゴリ別テーブル</pre>
+                            <pre>            TableByCategoryScreenViewModel(</pre>
+                            <pre>                moneyRecordRepository = moneyRecorderApplication().container.moneyRecordRepository</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre>    fun CreationExtras.moneyRecorderApplication(): MoneyRecorderApplication =</pre>
+                            <pre>        (this[AndroidViewModelFactory.APPLICATION_KEY] as MoneyRecorderApplication)</pre>
+                            <pre>}</pre>
+                        </div>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">Components.kt</span><br>
+                            <pre>package com.sakura.money_recorder</pre>
+                            <pre><br></pre>
+                            <pre>import androidx.compose.foundation.background</pre>
+                            <pre>import androidx.compose.foundation.clickable</pre>
+                            <pre>import androidx.compose.foundation.layout.Column</pre>
+                            <pre>import androidx.compose.foundation.layout.Row</pre>
+                            <pre>import androidx.compose.foundation.layout.Spacer</pre>
+                            <pre>import androidx.compose.foundation.layout.fillMaxWidth</pre>
+                            <pre>import androidx.compose.foundation.layout.height</pre>
+                            <pre>import androidx.compose.foundation.layout.padding</pre>
+                            <pre>import androidx.compose.material.icons.Icons</pre>
+                            <pre>import androidx.compose.material.icons.automirrored.filled.ArrowBack</pre>
+                            <pre>import androidx.compose.material.icons.filled.Info</pre>
+                            <pre>import androidx.compose.material3.AlertDialog</pre>
+                            <pre>import androidx.compose.material3.Button</pre>
+                            <pre>import androidx.compose.material3.CenterAlignedTopAppBar</pre>
+                            <pre>import androidx.compose.material3.DatePicker</pre>
+                            <pre>import androidx.compose.material3.DatePickerDialog</pre>
+                            <pre>import androidx.compose.material3.ExperimentalMaterial3Api</pre>
+                            <pre>import androidx.compose.material3.HorizontalDivider</pre>
+                            <pre>import androidx.compose.material3.Icon</pre>
+                            <pre>import androidx.compose.material3.IconButton</pre>
+                            <pre>import androidx.compose.material3.MaterialTheme</pre>
+                            <pre>import androidx.compose.material3.Text</pre>
+                            <pre>import androidx.compose.material3.TextButton</pre>
+                            <pre>import androidx.compose.material3.TopAppBarDefaults</pre>
+                            <pre>import androidx.compose.material3.rememberDatePickerState</pre>
+                            <pre>import androidx.compose.runtime.Composable</pre>
+                            <pre>import androidx.compose.ui.Alignment</pre>
+                            <pre>import androidx.compose.ui.Modifier</pre>
+                            <pre>import androidx.compose.ui.graphics.vector.ImageVector</pre>
+                            <pre>import androidx.compose.ui.text.style.TextOverflow</pre>
+                            <pre>import androidx.compose.ui.unit.dp</pre>
+                            <pre>import com.sakura.money_recorder.data.MoneyRecord</pre>
+                            <pre>import com.sakura.money_recorder.data.MoneyRecordGroup</pre>
+                            <pre><br></pre>
+                            <pre>//トップバー</pre>
+                            <pre>@OptIn(ExperimentalMaterial3Api::class) //バージョンの条件指定のため必要</pre>
+                            <pre>@Composable</pre>
+                            <pre>fun AppTopBar( //引数を書く欄</pre>
+                            <pre>    titleText: String, //上に表示される名前</pre>
+                            <pre>    canBack: Boolean = false, //戻るボタンの有無設定 初期値はfalse</pre>
+                            <pre>    onBackButtonClicked: () -&gt; Unit = {} //関数の引数、初期値は空の関数{}</pre>
+                            <pre>) {</pre>
+                            <pre>    CenterAlignedTopAppBar(</pre>
+                            <pre>        colors = TopAppBarDefaults.topAppBarColors(</pre>
+                            <pre>            containerColor = MaterialTheme.colorScheme.primaryContainer,</pre>
+                            <pre>            titleContentColor = MaterialTheme.colorScheme.primary,</pre>
+                            <pre>        ),</pre>
+                            <pre>        title = { Text(titleText) },</pre>
+                            <pre>        navigationIcon = {</pre>
+                            <pre>            if (canBack)</pre>
+                            <pre>                IconButton(</pre>
+                            <pre>                    onClick = onBackButtonClicked</pre>
+                            <pre>                ) {</pre>
+                            <pre>                    Icon(</pre>
+                            <pre>                        imageVector = Icons.AutoMirrored.Default.ArrowBack,</pre>
+                            <pre>                        contentDescription = null</pre>
+                            <pre>                    )</pre>
+                            <pre>                }</pre>
+                            <pre>        }</pre>
+                            <pre>    )</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>//お金の記録の小アイテム</pre>
+                            <pre>@Composable</pre>
+                            <pre>fun MoneyRecordItem(</pre>
+                            <pre>    moneyRecord: MoneyRecord,</pre>
+                            <pre>    onClicked: (Int) -&gt; Unit //Intを戻り値とする関数の代入式</pre>
+                            <pre>) {</pre>
+                            <pre>    Column(</pre>
+                            <pre>        Modifier.clickable( //タップ時の処理を追加</pre>
+                            <pre>            onClick = { onClicked(moneyRecord.id) }</pre>
+                            <pre>        )</pre>
+                            <pre>    ) {</pre>
+                            <pre>        Row( //横ならべのボックス</pre>
+                            <pre>            modifier = Modifier.fillMaxWidth(),</pre>
+                            <pre>            verticalAlignment = Alignment.CenterVertically //中央ぞろえ</pre>
+                            <pre>        ) {</pre>
+                            <pre>            Column(</pre>
+                            <pre>                Modifier.weight(10f) //スペースを適度に開ける、割合が10</pre>
+                            <pre>            ) {</pre>
+                            <pre>                var titleText = moneyRecord.category</pre>
+                            <pre>                if (moneyRecord.memo != "") titleText += " - ${moneyRecord.memo}"</pre>
+                            <pre>                Text(</pre>
+                            <pre>                    text = titleText,</pre>
+                            <pre>                    maxLines = 1,</pre>
+                            <pre>                    overflow = TextOverflow.Ellipsis //文が多すぎるとき...となる</pre>
+                            <pre>                )</pre>
+                            <pre>                Text(convertMillisToDate(moneyRecord.time))</pre>
+                            <pre>            }</pre>
+                            <pre>            Spacer(Modifier.weight(1f)) //スペースを適度に開ける、割合が1</pre>
+                            <pre>            Text(formatYen(moneyRecord.amount))</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre>    //下線</pre>
+                            <pre>    HorizontalDivider()</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>//お金の記録のグループアイテム</pre>
+                            <pre>@Composable</pre>
+                            <pre>fun MoneyRecordGroupItem(</pre>
+                            <pre>    moneyRecordGroup: MoneyRecordGroup,</pre>
+                            <pre>    onClicked: (Int) -&gt; Unit,</pre>
+                            <pre>) {</pre>
+                            <pre>    if (moneyRecordGroup.moneyRecordList.isEmpty()) return //もし空リストの時クラッシュする可能性があるため</pre>
+                            <pre><br></pre>
+                            <pre>    Column {</pre>
+                            <pre>        Spacer(Modifier.height(4.dp))</pre>
+                            <pre><br></pre>
+                            <pre>        Column(</pre>
+                            <pre>            modifier = Modifier</pre>
+                            <pre>                .background(MaterialTheme.colorScheme.surfaceContainer)</pre>
+                            <pre>        ) {</pre>
+                            <pre>            Text(</pre>
+                            <pre>                text = moneyRecordGroup.name,</pre>
+                            <pre>                color = MaterialTheme.colorScheme.onSurface,</pre>
+                            <pre>                modifier = Modifier</pre>
+                            <pre>                    .padding(horizontal = 16.dp, vertical = 2.dp)</pre>
+                            <pre>                    .fillMaxWidth()</pre>
+                            <pre>            )</pre>
+                            <pre>        }</pre>
+                            <pre><br></pre>
+                            <pre>        Column(</pre>
+                            <pre>            modifier = Modifier</pre>
+                            <pre>                .padding(horizontal = 16.dp)</pre>
+                            <pre>        ) {</pre>
+                            <pre>            // moneyRecordGroupのなかのmoneyRecord一つ一つに対して処理を実行する関数</pre>
+                            <pre>            moneyRecordGroup.moneyRecordList.forEach { moneyRecord -&gt; //戻り値をmoneyRecordに指定</pre>
+                            <pre>                MoneyRecordItem( //先ほどの小アイテム</pre>
+                            <pre>                    moneyRecord = moneyRecord,</pre>
+                            <pre>                    onClicked = onClicked, //関数の代入式 書いてはないがIntの引き渡しも行われている</pre>
+                            <pre>                )</pre>
+                            <pre>            }</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre><br></pre>
+                            <pre>//日付選択ポップアップ</pre>
+                            <pre>@OptIn(ExperimentalMaterial3Api::class) //バージョン関連で必要</pre>
+                            <pre>@Composable</pre>
+                            <pre>fun DatePickerModal(</pre>
+                            <pre>    onDateSelected: (Long?) -&gt; Unit, //時間Long?を返す関数</pre>
+                            <pre>    onDismiss: () -&gt; Unit            //キャンセル時の関数</pre>
+                            <pre>) {</pre>
+                            <pre>    val datePickerState = rememberDatePickerState( //ポップアップの変数状態を保存する</pre>
+                            <pre>        initialSelectedDateMillis = System.currentTimeMillis() //初期値として現在時刻</pre>
+                            <pre>    )</pre>
+                            <pre><br></pre>
+                            <pre>    DatePickerDialog( //公式用意のポップアップ関数</pre>
+                            <pre>        onDismissRequest = onDismiss,</pre>
+                            <pre>        confirmButton = {</pre>
+                            <pre>            TextButton(onClick = {</pre>
+                            <pre>                onDateSelected(datePickerState.selectedDateMillis)</pre>
+                            <pre>                onDismiss()</pre>
+                            <pre>            }) {</pre>
+                            <pre>                Text("決定")</pre>
+                            <pre>            }</pre>
+                            <pre>        },</pre>
+                            <pre>        dismissButton = {</pre>
+                            <pre>            TextButton(onClick = onDismiss) {</pre>
+                            <pre>                Text("取り消し")</pre>
+                            <pre>            }</pre>
+                            <pre>        }</pre>
+                            <pre>    ) {</pre>
+                            <pre>        DatePicker(state = datePickerState)</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>//場面下横長ボタン</pre>
+                            <pre>@Composable</pre>
+                            <pre>fun ConfirmButton(</pre>
+                            <pre>    enabled: Boolean = true, //ボタンが押せるか</pre>
+                            <pre>    text: String,</pre>
+                            <pre>    onClicked: () -&gt; Unit,</pre>
+                            <pre>) {</pre>
+                            <pre>    Button(</pre>
+                            <pre>        enabled = enabled,</pre>
+                            <pre>        onClick = onClicked,</pre>
+                            <pre>        modifier = Modifier</pre>
+                            <pre>            .padding()</pre>
+                            <pre>            .fillMaxWidth() //横長</pre>
+                            <pre>    ) {</pre>
+                            <pre>        Text(</pre>
+                            <pre>            text = text</pre>
+                            <pre>        )</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre><br></pre>
+                            <pre>//警告アラートポップアップテンプレート</pre>
+                            <pre>@Composable</pre>
+                            <pre>fun OriginalAlertDialog(</pre>
+                            <pre>    onDismissRequest: () -&gt; Unit,</pre>
+                            <pre>    onConfirmation: () -&gt; Unit,</pre>
+                            <pre>    dialogTitle: String,</pre>
+                            <pre>    dialogText: String,</pre>
+                            <pre>    confirmButtonText: String,</pre>
+                            <pre>    icon: ImageVector = Icons.Default.Info,</pre>
+                            <pre>) {</pre>
+                            <pre>    AlertDialog(</pre>
+                            <pre>        icon = {</pre>
+                            <pre>            Icon(icon, contentDescription = null)</pre>
+                            <pre>        },</pre>
+                            <pre>        title = {</pre>
+                            <pre>            Text(text = dialogTitle)</pre>
+                            <pre>        },</pre>
+                            <pre>        text = {</pre>
+                            <pre>            Text(text = dialogText)</pre>
+                            <pre>        },</pre>
+                            <pre>        onDismissRequest = {</pre>
+                            <pre>            onDismissRequest()</pre>
+                            <pre>        },</pre>
+                            <pre>        confirmButton = {</pre>
+                            <pre>            TextButton(</pre>
+                            <pre>                onClick = {</pre>
+                            <pre>                    onConfirmation()</pre>
+                            <pre>                }</pre>
+                            <pre>            ) {</pre>
+                            <pre>                Text(confirmButtonText)</pre>
+                            <pre>            }</pre>
+                            <pre>        },</pre>
+                            <pre>        dismissButton = {</pre>
+                            <pre>            TextButton(</pre>
+                            <pre>                onClick = {</pre>
+                            <pre>                    onDismissRequest()</pre>
+                            <pre>                }</pre>
+                            <pre>            ) {</pre>
+                            <pre>                Text("キャンセル")</pre>
+                            <pre>            }</pre>
+                            <pre>        }</pre>
+                            <pre>    )</pre>
+                            <pre>}</pre>
+                        </div>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">Functions.kt</span><br>
+                            <pre>package com.sakura.money_recorder</pre>
+                            <pre><br></pre>
+                            <pre>import android.icu.text.SimpleDateFormat</pre>
+                            <pre>import java.text.NumberFormat</pre>
+                            <pre>import java.util.Date</pre>
+                            <pre>import java.util.Locale</pre>
+                            <pre><br></pre>
+                            <pre>fun getNowMillis(): Long {</pre>
+                            <pre>    return System.currentTimeMillis()</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>fun convertMillisToDate(millis: Long): String {</pre>
+                            <pre>    val formatter = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())</pre>
+                            <pre>    return formatter.format(Date(millis))</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>fun convertMillisToYearMonth(millis: Long): String {</pre>
+                            <pre>    val formatter = SimpleDateFormat("yyyy年MM月", Locale.getDefault())</pre>
+                            <pre>    return formatter.format(Date(millis))</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>fun formatYen(num: Int): String {</pre>
+                            <pre>    val numberFormat = NumberFormat.getNumberInstance(Locale.getDefault())</pre>
+                            <pre>    return "${numberFormat.format(num)} 円"</pre>
+                            <pre>}</pre>
+                        </div>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">MainActivity.kt</span><br>
+                            <pre>package com.sakura.money_recorder</pre>
+                            <pre><br></pre>
+                            <pre>import android.os.Bundle</pre>
+                            <pre>import androidx.activity.ComponentActivity</pre>
+                            <pre>import androidx.activity.compose.setContent</pre>
+                            <pre>import androidx.activity.enableEdgeToEdge</pre>
+                            <pre>import androidx.compose.runtime.Composable</pre>
+                            <pre>import androidx.navigation.NavHostController</pre>
+                            <pre>import androidx.navigation.compose.rememberNavController</pre>
+                            <pre>import com.sakura.money_recorder.ui.navigation.MoneyRecorderNavHost</pre>
+                            <pre>import com.sakura.money_recorder.ui.theme.MoneyRecorderTheme</pre>
+                            <pre><br></pre>
+                            <pre>class MainActivity : ComponentActivity() {</pre>
+                            <pre>    override fun onCreate(savedInstanceState: Bundle?) {</pre>
+                            <pre>        super.onCreate(savedInstanceState)</pre>
+                            <pre>        enableEdgeToEdge()</pre>
+                            <pre>        setContent {</pre>
+                            <pre>            MoneyRecorderTheme {</pre>
+                            <pre>                MoneyRecorderApp()</pre>
+                            <pre>            }</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                            <pre><br></pre>
+                            <pre>@Composable</pre>
+                            <pre>fun MoneyRecorderApp(</pre>
+                            <pre>    navController: NavHostController = rememberNavController()</pre>
+                            <pre>){</pre>
+                            <pre>    MoneyRecorderNavHost(</pre>
+                            <pre>        navController = navController</pre>
+                            <pre>    )</pre>
+                            <pre>}</pre>
+                        </div>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">MoneyRecorderApplication.kt</span><br>
+                            <pre>package com.sakura.money_recorder</pre>
+                            <pre><br></pre>
+                            <pre>import android.app.Application</pre>
+                            <pre>import android.content.Context</pre>
+                            <pre>import com.sakura.money_recorder.data.MoneyRecordDatabase</pre>
+                            <pre>import com.sakura.money_recorder.data.MoneyRecordRepository</pre>
+                            <pre>import com.sakura.money_recorder.data.OfflineMoneyRecordsRepository</pre>
+                            <pre><br></pre>
+                            <pre>class MoneyRecorderApplication: Application() {</pre>
+                            <pre>    lateinit var container: AppContainer</pre>
+                            <pre><br></pre>
+                            <pre>    override fun onCreate() {</pre>
+                            <pre>        super.onCreate()</pre>
+                            <pre>        container = AppDataContainer(this)</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre>    interface AppContainer {</pre>
+                            <pre>        val moneyRecordRepository: MoneyRecordRepository</pre>
+                            <pre>    }</pre>
+                            <pre><br></pre>
+                            <pre>    class AppDataContainer(private val context: Context) : AppContainer {</pre>
+                            <pre>        override val moneyRecordRepository: MoneyRecordRepository by lazy {</pre>
+                            <pre>            OfflineMoneyRecordsRepository(MoneyRecordDatabase.getDatabase(context).moneyRecordDao())</pre>
+                            <pre>        }</pre>
+                            <pre>    }</pre>
+                            <pre>}</pre>
+                        </div>
+
+                        <h3 id="08">
+                            manifest
+                        </h3>
+                        <div class="code_line_box" translate="no">
+                            <span class="title">AndroidManifest.kt</span><br>
+                            <pre>&lt;?xml version="1.0" encoding="utf-8"?&gt;</pre>
+                            <pre>&lt;manifest xmlns:android="http://schemas.android.com/apk/res/android"</pre>
+                            <pre>    xmlns:tools="http://schemas.android.com/tools"&gt;</pre>
+                            <pre><br></pre>
+                            <pre>    &lt;application</pre>
+                            <pre>        android:name=".MoneyRecorderApplication"</pre>
+                            <pre>        android:allowBackup="true"</pre>
+                            <pre>        android:dataExtractionRules="@xml/data_extraction_rules"</pre>
+                            <pre>        android:fullBackupContent="@xml/backup_rules"</pre>
+                            <pre>        android:icon="@mipmap/ic_launcher"</pre>
+                            <pre>        android:label="@string/app_name"</pre>
+                            <pre>        android:roundIcon="@mipmap/ic_launcher_round"</pre>
+                            <pre>        android:supportsRtl="true"</pre>
+                            <pre>        android:theme="@style/Theme.MoneyRecorder"&gt;</pre>
+                            <pre>        &lt;activity</pre>
+                            <pre>            android:name=".MainActivity"</pre>
+                            <pre>            android:exported="true"</pre>
+                            <pre>            android:label="お小遣い帳"</pre>
+                            <pre>            android:theme="@style/Theme.MoneyRecorder"&gt;</pre>
+                            <pre>            &lt;intent-filter&gt;</pre>
+                            <pre>                &lt;action android:name="android.intent.action.MAIN" /&gt;</pre>
+                            <pre><br></pre>
+                            <pre>                &lt;category android:name="android.intent.category.LAUNCHER" /&gt;</pre>
+                            <pre>            &lt;/intent-filter&gt;</pre>
+                            <pre>        &lt;/activity&gt;</pre>
+                            <pre>    &lt;/application&gt;</pre>
+                            <pre>&lt;/manifest&gt;</pre>
+                        </div>
+                    </section>
+                </main>
+
+                <aside id="side_bar">
+                    <nav>
+                        <ul>
+                            <li><a href="../index.html">index.html</a></li>
+                        </ul>
+                    </nav>
+                    <p>お小遣い帳を作る</p>
+                    <nav>
+                        <ul>
+                            <li><a href="money_recorder_01.html">#01 プロジェクト作成</a></li>
+                            <li><a href="money_recorder_02.html">#02 ホーム画面作成編</a></li>
+                            <li><a href="money_recorder_03.html">#03 記録画面と画面遷移</a></li>
+                            <li><a href="money_recorder_04.html">#04 ViewModel作成編</a></li>
+                            <li><a href="money_recorder_05.html">#05 Room導入編</a></li>
+                            <li><a href="money_recorder_06.html">#06 完成編</a></li>
+                            <li>#07 今回
+                            </li>
+                        </ul>
+                    </nav>
+                    <div class="sticky">
+                        <p><a href="#index">今回の目次</a></p>
+                        <nav>
+                            <ul>
+                                <li><a href="#01">全ファイル構成</a></li>
+                                <li><a href="#02">gradleファイル</a></li>
+                                <li><a href="#03">./data</a></li>
+                                <li><a href="#04">./ui/navigation</a></li>
+                                <li><a href="#05">./ui/screen</a></li>
+                                <li><a href="#06">./ui/theme</a></li>
+                                <li><a href="#07">./</a></li>
+                                <li><a href="#08">manifest</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </aside>
+            </div>
+
+            <footer>
+                <p></p>
+            </footer>
+        </div>
+    </body>
+</html>
